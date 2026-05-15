@@ -643,11 +643,12 @@ function pPj(p){
 async function init(){
   try{
     setSS('saving','連線中…');
-    const [c,q,p,pj]=await Promise.all([apiGet('clients'),apiGet('quotes'),apiGet('products'),apiGet('projects')]);
+    const [c,q,p,pj,tk]=await Promise.all([apiGet('clients'),apiGet('quotes'),apiGet('products'),apiGet('projects'),apiGet('tasks')]);
     clients=Array.isArray(c)?c:[];
     quotes=Array.isArray(q)?q.map(pQ):[];
     products=Array.isArray(p)&&p.length?p.map(x=>({...x,price:parseFloat(x.price)||0})):DP;
     projects=Array.isArray(pj)?pj.map(pPj):[];
+    tasks=Array.isArray(tk)?tk.map(t=>({...t,done:t.done==='TRUE'||t.done===true,pinned:t.pinned==='TRUE'||t.pinned===true})):JSON.parse(localStorage.getItem('mslab_tasks')||'[]');
     if(!Array.isArray(p)||!p.length)await apiSave('products',products);
     setSS('ok','已連線 Google Sheets');
   }catch(e){
@@ -708,6 +709,7 @@ const CAT_META = {
 };
 
 function saveTasksLocal(){localStorage.setItem('mslab_tasks',JSON.stringify(tasks));}
+async function saveTasks(){saveTasksLocal();await apiSave('tasks',tasks);}
 
 function todayStr(){return new Date().toISOString().slice(0,10);}
 
@@ -819,7 +821,7 @@ function saveTask(){
   } else {
     tasks.push({id:'TK-'+Date.now(),text,cat:document.getElementById('tk-cat').value,date:document.getElementById('tk-date').value,note:document.getElementById('tk-note').value.trim(),pinned,done:false,createdAt:new Date().toISOString()});
   }
-  saveTasksLocal();closeModal('task-modal');renderTasks();renderToday();
+  saveTasksLocal();closeModal('task-modal');renderTasks();renderToday();saveTasks();
 }
 
 function filterTasks(f,el){
@@ -879,14 +881,14 @@ function renderTasks(){
 }
 
 function toggleTask(id){
-  const t=tasks.find(t=>t.id===id);if(t){t.done=!t.done;saveTasksLocal();renderTasks();renderToday();}
+  const t=tasks.find(t=>t.id===id);if(t){t.done=!t.done;renderTasks();renderToday();saveTasks();}
 }
 function togglePjTodo(pjId,i){
   const pj=getPj(pjId);if(pj&&pj.todos[i]){pj.todos[i].done=!pj.todos[i].done;lb();savePjs();renderTasks();renderToday();}
 }
 function deleteTask(id){
   if(!confirm('確定要刪除這個待辦？'))return;
-  tasks=tasks.filter(t=>t.id!==id);saveTasksLocal();renderTasks();renderToday();
+  tasks=tasks.filter(t=>t.id!==id);renderTasks();renderToday();saveTasks();
 }
 
 function renderDashboard(){
