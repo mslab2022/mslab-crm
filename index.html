@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>莯蒔 Ms.Lab — 花藝管理系統</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="莯蒔 Ms.Lab">
+<meta name="theme-color" content="#8b6f5e">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%238b6f5e'/><text y='.9em' font-size='80' x='10'>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf9f7;--bg2:#f3f1ec;--bg3:#ece9e3;
+  --surface:#fff;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1a1916;--text2:#6b6860;--text3:#9e9b96;
+  --accent:#8b6f5e;--accent2:#c4a882;--accent-light:#f5ede6;
+  --green:#4a7c59;--green-light:#eaf2ed;
+  --amber:#96713a;--amber-light:#faf3e6;
+  --rose:#8c5561;--rose-light:#f7eef0;
+  --blue:#3d5a80;--blue-light:#eef2f8;
+  --purple:#6b5b95;--purple-light:#f0eef8;
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:1.5rem 1.25rem 1.25rem;border-bottom:1px solid var(--border)}
+.logo-cn{font-family:'Noto Serif TC',serif;font-size:17px;font-weight:500;letter-spacing:0.05em}
+.logo-en{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:0.08em}
+.logo-dot{display:inline-block;width:6px;height:6px;background:var(--accent2);border-radius:50%;margin-right:6px;vertical-align:middle}
+.nav{padding:.75rem 0;flex:1}
+.nav-section{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:.75rem 1.25rem .25rem}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 1.25rem;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:1px 0}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{color:var(--accent);background:var(--accent-light);border-left-color:var(--accent);font-weight:500}
+.nav-icon{width:18px;text-align:center;font-size:15px}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:500;font-family:'Noto Serif TC',serif}
+.content{flex:1;overflow-y:auto;padding:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;box-shadow:var(--shadow)}
+.stat-num{font-size:24px;font-weight:300;font-family:'Noto Serif TC',serif}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.04em}
+.stat-card.accent{background:var(--accent-light);border-color:rgba(139,111,94,.15)}
+.stat-card.accent .stat-num{color:var(--accent)}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.section-title{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.btn{padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:transparent}
+.btn-primary:hover{background:#7a6050}
+.btn-danger{background:var(--rose-light);color:var(--rose);border-color:transparent}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-icon{padding:6px 8px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;font-size:10px;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-rose{background:var(--rose-light);color:var(--rose)}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-accent{background:var(--accent-light);color:var(--accent)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+.badge-gray{background:var(--bg3);color:var(--text2)}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.av-rose{background:var(--rose-light);color:var(--rose)}
+.av-blue{background:var(--blue-light);color:var(--blue)}
+.av-green{background:var(--green-light);color:var(--green)}
+.av-amber{background:var(--amber-light);color:var(--amber)}
+.av-accent{background:var(--accent-light);color:var(--accent)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+label{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.03em}
+input,select,textarea{padding:8px 11px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;font-family:'Noto Sans TC',sans-serif;outline:none;transition:border .15s,background .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);background:var(--surface)}
+textarea{resize:vertical}
+.overlay{display:none;position:fixed;inset:0;background:rgba(26,25,22,.45);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.75rem;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.12);animation:modalIn .2s ease}
+.modal-lg{width:720px}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-title{font-size:16px;font-weight:500;font-family:'Noto Serif TC',serif}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem}
+.page{display:none}.page.active{display:block}
+.divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
+.name-cell{display:flex;align-items:center;gap:9px}
+.search-bar{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
+.search-bar input{max-width:260px}
+
+/* Tabs */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{padding:8px 16px;font-size:12px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* Project cards */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.project-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.project-card:hover{border-color:var(--accent2);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.project-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.project-name{font-size:15px;font-weight:500;font-family:'Noto Serif TC',serif;flex:1;margin-right:8px}
+.project-meta{font-size:11px;color:var(--text3);line-height:1.9;margin-bottom:.75rem}
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:var(--accent2);border-radius:2px;transition:width .3s}
+.project-stats{display:flex;gap:1rem;font-size:12px;color:var(--text2);margin-top:.75rem}
+.project-stat-item{display:flex;flex-direction:column;gap:1px}
+.project-stat-num{font-weight:500;color:var(--text);font-size:13px}
+.project-stat-lbl{font-size:10px;color:var(--text3)}
+.project-actions{display:flex;gap:6px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+
+/* Todo */
+.todo-list{display:flex;flex-direction:column;gap:6px}
+.todo-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--text3)}
+.todo-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--surface);font-size:10px}
+.todo-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+.todo-text{flex:1;font-size:13px}
+.todo-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px;transition:all .15s}
+.todo-del:hover{color:var(--rose);background:var(--rose-light)}
+.todo-add{display:flex;gap:8px;margin-top:8px}
+.todo-add input{flex:1}
+
+/* Linked items */
+.linked-list{display:flex;flex-direction:column;gap:6px}
+.linked-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);font-size:13px}
+.linked-item-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Product planning rows */
+.plan-row{display:grid;grid-template-columns:1.8fr 60px 88px 88px 120px 1fr 32px;gap:8px;align-items:center;margin-bottom:8px}
+.plan-row input,.plan-row select{margin:0}
+.plan-head{display:grid;grid-template-columns:1.8fr 60px 88px 88px 120px 1fr 32px;gap:8px;font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+
+/* Color dot next to select */
+.color-select-wrap{display:flex;align-items:center;gap:6px}
+.color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:1px solid var(--border2)}
+
+/* Inbound rows */
+.in-row{display:grid;grid-template-columns:2fr 70px 60px 100px 100px 110px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.in-row input,.in-row select{margin:0}
+.in-head{display:grid;grid-template-columns:2fr 70px 60px 100px 100px 110px 32px;gap:8px;font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+
+/* Outbound rows */
+.out-row{display:grid;grid-template-columns:2fr 70px 60px 110px 100px 100px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.out-row input,.out-row select{margin:0}
+.out-head{display:grid;grid-template-columns:2fr 70px 60px 110px 100px 100px 32px;gap:8px;font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+
+/* Inventory */
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:1rem}
+.inv-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem}
+.inv-name{font-size:13px;font-weight:500;margin-bottom:6px}
+.inv-row{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);padding:2px 0}
+.inv-row span:last-child{font-weight:500;color:var(--text)}
+.inv-row.warn span:last-child{color:var(--rose)}
+.inv-row.ok span:last-child{color:var(--green)}
+
+/* Budget */
+.budget-section{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem}
+.budget-card{background:var(--bg);border-radius:var(--radius);padding:.875rem 1rem;border:1px solid var(--border)}
+.budget-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.budget-value{font-size:18px;font-weight:400;font-family:'Noto Serif TC',serif}
+.budget-over{color:var(--rose)}.budget-ok{color:var(--green)}
+
+/* Summary totals inside project */
+.summary-strip{display:flex;gap:1.5rem;padding:.75rem 1rem;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:1rem;font-size:13px;flex-wrap:wrap}
+.summary-item{display:flex;flex-direction:column;gap:2px}
+.summary-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.summary-value{font-weight:500}
+
+/* Quote form */
+.quote-items-head{display:grid;grid-template-columns:3fr 70px 60px 90px 32px;gap:8px;font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.item-row{display:grid;grid-template-columns:3fr 70px 60px 90px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.item-row input{margin:0}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px;border-radius:6px;font-size:14px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.del-btn:hover{color:var(--rose);background:var(--rose-light)}
+.add-item-btn{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;padding:8px 0;background:none;border:none;font-family:'Noto Sans TC',sans-serif;transition:color .15s}
+.add-item-btn:hover{color:var(--accent)}
+.totals-section{border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem}
+.total-row{display:flex;justify-content:flex-end;gap:2rem;padding:4px 0;font-size:13px}
+.total-label{color:var(--text2)}
+.total-value{min-width:100px;text-align:right;font-weight:500}
+.total-grand{font-size:16px;font-family:'Noto Serif TC',serif;padding-top:8px;margin-top:4px;border-top:1px solid var(--border)}
+
+/* Sync / Loading */
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sync-dot.ok{background:var(--green)}.sync-dot.saving{background:var(--amber);animation:pulse 1s infinite}.sync-dot.error{background:var(--rose)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
+.loading-spinner{width:36px;height:36px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text3);font-family:'Noto Serif TC',serif}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
+.empty-icon{font-size:28px;margin-bottom:8px;opacity:.5}
+.quote-preview{background:var(--bg);border-radius:var(--radius);padding:2rem;border:1px solid var(--border)}
+
+/* Today's work */
+.today-date{font-size:12px;color:var(--text3);margin-bottom:1.25rem;font-family:'Noto Serif TC',serif;letter-spacing:.04em}
+.today-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:1rem}
+.today-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;box-shadow:var(--shadow)}
+.today-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.today-card-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.07em}
+.today-card-icon{font-size:15px}
+.today-items{display:flex;flex-direction:column;gap:5px}
+.today-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:var(--bg);border:1px solid var(--border);transition:background .15s}
+.today-item.done{opacity:.5}
+.today-item.done .today-item-text{text-decoration:line-through;color:var(--text3)}
+.today-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;background:var(--surface)}
+.today-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+.today-item-text{flex:1;font-size:12px;line-height:1.4}
+.today-item-meta{font-size:10px;color:var(--text3);white-space:nowrap}
+.today-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:2px 4px;border-radius:4px;transition:all .15s;flex-shrink:0}
+.today-del:hover{color:var(--rose);background:var(--rose-light)}
+.today-add{display:flex;gap:6px;margin-top:8px}
+.today-add input{flex:1;font-size:12px;padding:6px 9px}
+.today-add button{flex-shrink:0}
+.today-empty{font-size:12px;color:var(--text3);padding:8px 0;text-align:center}
+
+/* ── Mobile Responsive ───────────────────────────────── */
+@media (max-width: 768px) {
+  .app{flex-direction:column}
+  .sidebar{display:none}
+  .main{height:100dvh}
+  .content{padding:1rem;padding-bottom:80px}
+
+  /* Bottom nav */
+  .mobile-nav{display:flex}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .project-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-field.full{grid-column:1}
+  .modal{width:95vw!important;padding:1.25rem;max-height:85vh}
+  .plan-row{grid-template-columns:1fr 50px 70px 70px 100px 32px}
+  .plan-head{grid-template-columns:1fr 50px 70px 70px 100px 32px}
+  .in-row{grid-template-columns:1.5fr 55px 45px 80px 90px 90px 32px}
+  .out-row{grid-template-columns:1.5fr 55px 45px 90px 80px 80px 32px}
+  .budget-section{grid-template-columns:1fr 1fr}
+  .summary-strip{gap:1rem}
+  table{font-size:12px}
+  th,td{padding:7px 8px}
+  .topbar{padding:0 1rem;height:52px}
+  .topbar-title{font-size:14px}
+  .today-grid{grid-template-columns:1fr}
+}
+
+@media (min-width:769px){.mobile-nav{display:none!important}}
+
+/* Bottom nav bar */
+.mobile-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  z-index:500;
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -2px 12px rgba(0,0,0,0.06);
+}
+.mobile-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px;gap:3px;cursor:pointer;transition:all .15s;
+  color:var(--text3);font-size:10px;border:none;background:none;font-family:'Noto Sans TC',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item .mn-icon{font-size:20px;line-height:1}
+.mobile-nav-item .mn-label{font-size:9px;letter-spacing:.03em}
+
+@media print{.no-print{display:none!important}.mobile-nav{display:none!important}body{background:white}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">載入莯蒔 Ms.Lab 資料中…</div>
+</div>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-cn"><span class="logo-dot"></span>莯蒔 Ms.Lab</div>
+    <div class="logo-en">Floral Studio · 花藝管理系統</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">主要功能</div>
+    <div class="nav-item active" onclick="nav('today',this)"><span class="nav-icon">☀</span>今日工事</div>
+    <div class="nav-item" onclick="nav('tasks',this)"><span class="nav-icon">✓</span>待辦清單</div>
+    <div class="nav-item" onclick="nav('dashboard',this)"><span class="nav-icon">◈</span>總覽</div>
+    <div class="nav-item" onclick="nav('projects',this)"><span class="nav-icon">❋</span>專案管理</div>
+    <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon">♡</span>客戶管理</div>
+    <div class="nav-item" onclick="nav('quotes',this)"><span class="nav-icon">◻</span>報價單</div>
+    <div class="nav-section">設定</div>
+    <div class="nav-item" onclick="nav('products',this)"><span class="nav-icon">✿</span>花材品項庫</div>
+  </nav>
+  <div class="sidebar-footer">莯蒔 Ms.Lab<br>IG: mshf.lab_floral<br>芳療: mshf.lab_aroma</div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">總覽</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="sync-bar"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">連線中…</span></div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- Today -->
+    <div class="page active" id="page-today">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+        <div class="today-date" id="today-date-label"></div>
+        <button class="btn btn-primary" onclick="nav('tasks',document.querySelectorAll('.nav-item')[2])">＋ 新增待辦</button>
+      </div>
+      <div id="today-empty-state" style="display:none">
+        <div class="empty" style="padding:3rem">
+          <div class="empty-icon">☀</div>
+          <div>今天沒有待辦事項</div>
+          <div style="margin-top:8px"><button class="btn btn-primary" onclick="nav('tasks',document.querySelectorAll('.nav-item')[2])">前往新增待辦</button></div>
+        </div>
+      </div>
+      <div class="today-grid" id="today-cards-grid"></div>
+    </div>
+
+    <!-- Tasks -->
+    <div class="page" id="page-tasks">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="tf-all" onclick="filterTasks('all',this)">全部</button>
+          <button class="btn" id="tf-pending" onclick="filterTasks('pending',this)">未完成</button>
+          <button class="btn" id="tf-done" onclick="filterTasks('done',this)">已完成</button>
+        </div>
+        <button class="btn btn-primary" onclick="openTaskModal()">＋ 新增待辦</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th></th><th>待辦事項</th><th>分類</th><th>日期</th><th>來源</th><th></th></tr></thead>
+            <tbody id="tasks-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="page" id="page-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="stat-projects">—</div><div class="stat-lbl">進行中專案</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-clients">—</div><div class="stat-lbl">客戶數</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-quotes">—</div><div class="stat-lbl">報價單數</div></div>
+        <div class="stat-card accent"><div class="stat-num" id="stat-revenue">—</div><div class="stat-lbl">報價總額</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="card">
+          <div class="section-head"><span class="section-title">進行中專案</span><button class="btn btn-sm" onclick="nav('projects',document.querySelectorAll('.nav-item')[1])">查看全部</button></div>
+          <div id="dash-projects"></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><span class="section-title">近期報價單</span><button class="btn btn-sm" onclick="nav('quotes',document.querySelectorAll('.nav-item')[3])">查看全部</button></div>
+          <div class="table-wrap"><table><thead><tr><th>客戶</th><th>項目</th><th>金額</th><th>狀態</th></tr></thead><tbody id="dash-quotes"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="page" id="page-projects">
+      <div id="project-list-view">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="pf-all" onclick="filterProjects('all',this)">全部</button>
+            <button class="btn" id="pf-planning" onclick="filterProjects('planning',this)">規劃中</button>
+            <button class="btn" id="pf-active" onclick="filterProjects('active',this)">進行中</button>
+            <button class="btn" id="pf-done" onclick="filterProjects('done',this)">已完成</button>
+          </div>
+          <button class="btn btn-primary" onclick="openProjectModal()">＋ 新增專案</button>
+        </div>
+        <div class="project-grid" id="projects-grid"></div>
+      </div>
+      <div id="project-detail-view" style="display:none"></div>
+    </div>
+
+    <!-- Clients -->
+    <div class="page" id="page-clients">
+      <div class="card">
+        <div class="section-head"><span class="section-title">所有客戶</span><button class="btn btn-primary" onclick="openClientModal()">＋ 新增客戶</button></div>
+        <div class="search-bar"><input type="text" id="client-search" placeholder="搜尋客戶姓名、電話…" oninput="renderClients()"></div>
+        <div class="table-wrap"><table><thead><tr><th>客戶</th><th>電話</th><th>Email</th><th>類型</th><th>備註</th><th></th></tr></thead><tbody id="clients-body"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Quotes -->
+    <div class="page" id="page-quotes">
+      <div id="quote-list-view">
+        <div class="card">
+          <div class="section-head"><span class="section-title">所有報價單</span><button class="btn btn-primary" onclick="openNewQuote()">＋ 新增報價單</button></div>
+          <div class="table-wrap"><table><thead><tr><th>編號</th><th>客戶</th><th>項目</th><th>日期</th><th>金額</th><th>狀態</th><th></th></tr></thead><tbody id="quotes-body"></tbody></table></div>
+        </div>
+      </div>
+      <div id="quote-form-view" style="display:none">
+        <div class="card">
+          <div class="section-head"><span class="section-title" id="quote-form-title">新增報價單</span><button class="btn" onclick="closeQuoteForm()">← 返回</button></div>
+          <div class="form-grid" style="margin-bottom:14px">
+            <div class="form-field"><label>訂購人 *</label><select id="q-client" onchange="fillOrdererInfo()"></select></div>
+            <div class="form-field"><label>活動 / 項目名稱</label><input type="text" id="q-project" placeholder="婚禮主桌花…"></div>
+            <div class="form-field"><label>訂購人電話</label><input type="text" id="q-orderer-phone" placeholder="自動帶入，可修改"></div>
+            <div class="form-field"><label>活動日期</label><input type="date" id="q-date"></div>
+            <div class="form-field"><label>交貨方式</label><select id="q-delivery" onchange="toggleRecipient()"><option>自取</option><option>配送到府</option><option>現場佈置</option></select></div>
+            <div class="form-field full" id="recipient-section" style="display:none;border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--bg)">
+              <div style="font-size:11px;font-weight:500;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">收件人資訊</div>
+              <div class="form-grid" style="margin-bottom:0">
+                <div class="form-field"><label>收件人姓名</label><input type="text" id="q-recipient-name" placeholder="若與訂購人相同可不填"></div>
+                <div class="form-field"><label>收件人電話</label><input type="text" id="q-recipient-phone" placeholder="收件人電話"></div>
+                <div class="form-field full"><label>配送地址 *</label><input type="text" id="q-address" placeholder="自動帶入客戶地址，可修改"></div>
+              </div>
+            </div>
+            <div class="form-field full"><label>備註</label><textarea id="q-note" rows="2" placeholder="配色、花材偏好…"></textarea></div>
+          </div>
+          <hr class="divider">
+          <div style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">花材 / 服務品項</div>
+          <div class="quote-items-head"><span>品項名稱</span><span>數量</span><span>單位</span><span>單價 (NT$)</span><span></span></div>
+          <div id="quote-items-container"></div>
+          <button class="add-item-btn" onclick="addQItem()">＋ 新增品項</button>
+          <div class="totals-section">
+            <div class="total-row"><span class="total-label">小計</span><span class="total-value" id="subtotal-display">NT$ 0</span></div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:6px 0;font-size:12px">
+              <label style="margin:0;font-size:12px">折扣</label><input type="number" id="q-discount" value="0" min="0" max="100" style="width:65px" oninput="calcTotal()"><span style="color:var(--text3)">%</span>
+              <label style="margin:0;font-size:12px;margin-left:8px">含稅</label><input type="number" id="q-tax" value="0" min="0" max="100" style="width:65px" oninput="calcTotal()"><span style="color:var(--text3)">%</span>
+            </div>
+            <div class="total-row total-grand"><span class="total-label">總計</span><span class="total-value" id="total-display">NT$ 0</span></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem">
+            <button class="btn" onclick="saveQuote('draft')">存草稿</button>
+            <button class="btn btn-primary" onclick="saveQuote('sent')">儲存並預覽</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="page" id="page-products">
+      <div class="card">
+        <div class="section-head"><span class="section-title">常用花材 / 服務品項</span><button class="btn btn-primary" onclick="openProductModal()">＋ 新增品項</button></div>
+        <div class="table-wrap"><table><thead><tr><th>品項名稱</th><th>類別</th><th>參考單價 (NT$)</th><th>單位</th><th></th></tr></thead><tbody id="products-body"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Modals -->
+<div class="overlay" id="project-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head"><span class="modal-title" id="pj-modal-title">新增專案</span><button class="btn btn-icon" onclick="closeModal('project-modal')">✕</button></div>
+    <div class="form-grid">
+      <div class="form-field full"><label>專案名稱 *</label><input type="text" id="pj-name" placeholder="2025 母親節花束活動…"></div>
+      <div class="form-field"><label>專案類型</label><select id="pj-type"><option>節慶</option><option>婚禮</option><option>企業活動</option><option>開幕</option><option>畢業</option><option>自訂</option></select></div>
+      <div class="form-field"><label>進度狀態</label><select id="pj-status"><option value="planning">規劃中</option><option value="active">進行中</option><option value="done">已完成</option></select></div>
+      <div class="form-field"><label>開始日期</label><input type="date" id="pj-start"></div>
+      <div class="form-field"><label>截止日期</label><input type="date" id="pj-end"></div>
+      <div class="form-field"><label>預算 (NT$)</label><input type="number" id="pj-budget" placeholder="0" min="0"></div>
+      <div class="form-field"><label>實際花費 (NT$)</label><input type="number" id="pj-spent" placeholder="0" min="0"></div>
+      <div class="form-field full"><label>專案描述</label><textarea id="pj-desc" rows="2" placeholder="目標、配色方向…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('project-modal')">取消</button><button class="btn btn-primary" onclick="saveProject()">儲存專案</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="client-modal">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">新增客戶</span><button class="btn btn-icon" onclick="closeModal('client-modal')">✕</button></div>
+    <div class="form-grid">
+      <div class="form-field"><label>姓名 *</label><input type="text" id="c-name" placeholder="客戶姓名"></div>
+      <div class="form-field"><label>電話</label><input type="text" id="c-phone" placeholder="0912-345-678"></div>
+      <div class="form-field"><label>Email</label><input type="email" id="c-email"></div>
+      <div class="form-field"><label>客戶類型</label><select id="c-type"><option>個人</option><option>企業</option><option>婚禮</option><option>活動主辦</option></select></div>
+      <div class="form-field full"><label>預設地址</label><input type="text" id="c-address" placeholder="台北市信義區…（配送時自動帶入）"></div>
+      <div class="form-field full"><label>備註</label><textarea id="c-note" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('client-modal')">取消</button><button class="btn btn-primary" onclick="saveClient()">儲存</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">新增品項</span><button class="btn btn-icon" onclick="closeModal('product-modal')">✕</button></div>
+    <div class="form-grid">
+      <div class="form-field"><label>品項名稱 *</label><input type="text" id="p-name"></div>
+      <div class="form-field"><label>類別</label><select id="p-cat"><option>新鮮花材</option><option>乾燥花</option><option>永生花</option><option>花藝設計</option><option>佈置服務</option><option>其他</option></select></div>
+      <div class="form-field"><label>參考單價 (NT$)</label><input type="number" id="p-price" placeholder="0" min="0"></div>
+      <div class="form-field"><label>單位</label><input type="text" id="p-unit" placeholder="束 / 盆 / 組 / 式"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('product-modal')">取消</button><button class="btn btn-primary" onclick="saveProduct()">儲存</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="preview-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head no-print"><span class="modal-title">報價單預覽</span><button class="btn btn-icon" onclick="closeModal('preview-modal')">✕</button></div>
+    <div id="preview-content"></div>
+    <div class="modal-footer no-print">
+      <button class="btn" onclick="closeModal('preview-modal')">關閉</button>
+      <button class="btn" onclick="convertToReceipt()">轉為收據</button>
+      <button class="btn btn-primary" onclick="printQuote()">列印 / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt payment modal -->
+<div class="overlay" id="receipt-pay-modal">
+  <div class="modal" style="width:360px">
+    <div class="modal-head"><span class="modal-title">選擇付款方式</span><button class="btn btn-icon" onclick="closeModal('receipt-pay-modal')">✕</button></div>
+    <div class="form-field" style="margin-bottom:1.25rem">
+      <label>付款方式</label>
+      <select id="receipt-payment">
+        <option value="現金">現金</option>
+        <option value="轉帳">轉帳</option>
+        <option value="刷卡">刷卡</option>
+        <option value="Line Pay">Line Pay</option>
+        <option value="街口支付">街口支付</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('receipt-pay-modal')">取消</button>
+      <button class="btn btn-primary" onclick="doConvertToReceipt()">產生收據</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt preview modal -->
+<div class="overlay" id="receipt-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head no-print"><span class="modal-title">收據預覽</span><button class="btn btn-icon" onclick="closeModal('receipt-modal')">✕</button></div>
+    <div id="receipt-content"></div>
+    <div class="modal-footer no-print">
+      <button class="btn" onclick="closeModal('receipt-modal')">關閉</button>
+      <button class="btn btn-primary" onclick="printReceipt()">列印 / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-item active" onclick="nav('today',this)" data-page="today">
+    <span class="mn-icon">☀</span><span class="mn-label">今日</span>
+  </button>
+  <button class="mobile-nav-item" onclick="nav('tasks',this)" data-page="tasks">
+    <span class="mn-icon">✓</span><span class="mn-label">待辦</span>
+  </button>
+  <button class="mobile-nav-item" onclick="nav('projects',this)" data-page="projects">
+    <span class="mn-icon">❋</span><span class="mn-label">專案</span>
+  </button>
+  <button class="mobile-nav-item" onclick="nav('quotes',this)" data-page="quotes">
+    <span class="mn-icon">◻</span><span class="mn-label">報價</span>
+  </button>
+  <button class="mobile-nav-item" onclick="nav('dashboard',this)" data-page="dashboard">
+    <span class="mn-icon">◈</span><span class="mn-label">總覽</span>
+  </button>
+</nav>
+
+<!-- Task Modal -->
+<div class="overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title" id="task-modal-title">新增待辦</span><button class="btn btn-icon" onclick="closeModal('task-modal')">✕</button></div>
+    <div class="form-grid">
+      <div class="form-field full"><label>待辦事項 *</label><input type="text" id="tk-text" placeholder="要做什麼…"></div>
+      <div class="form-field"><label>分類</label>
+        <select id="tk-cat">
+          <option value="make">🌸 花藝製作</option>
+          <option value="ship">📦 出貨</option>
+          <option value="contact">♡ 客戶聯繫</option>
+          <option value="buy">⬇ 進貨</option>
+          <option value="memo">📝 備忘</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="form-field"><label>預定日期</label><input type="date" id="tk-date"></div>
+      <div class="form-field full">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="tk-pin" style="width:auto;accent-color:var(--accent)">
+          <span>📌 釘選今日工事（完成前每天都出現）</span>
+        </label>
+      </div>
+      <div class="form-field full"><label>備註</label><input type="text" id="tk-note" placeholder="補充說明…"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('task-modal')">取消</button><button class="btn btn-primary" onclick="saveTask()">儲存待辦</button></div>
+  </div>
+</div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbxJGCsJA4IAsUiSs6VmPvAiT2NANkjv457ckiMf-ZRgBLnw_Yy-1MCTpuIWMKBAwAlt7g/exec';
+function setSS(s,t){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-text').textContent=t}
+async function apiGet(s){const r=await fetch(`${API}?sheet=${s}`);return r.json()}
+async function apiSave(s,d){setSS('saving','儲存中…');try{await fetch(API,{method:'POST',body:JSON.stringify({action:'save_all',sheet:s,data:d})});setSS('ok','已同步 Google Sheets')}catch(e){setSS('error','同步失敗')}}
+
+let clients=[],quotes=[],products=[],projects=[];
+let quoteItems=[];
+let editingPjId=null;
+let pjFilter='all';
+
+const DP=[
+  {id:'1',name:'手綁花束',cat:'花藝設計',price:1200,unit:'束'},
+  {id:'2',name:'桌花擺設',cat:'花藝設計',price:2500,unit:'組'},
+  {id:'3',name:'開幕花籃',cat:'花藝設計',price:3500,unit:'個'},
+  {id:'4',name:'婚禮拱門花牆',cat:'佈置服務',price:18000,unit:'式'},
+  {id:'5',name:'鮮花胸花',cat:'新鮮花材',price:350,unit:'個'},
+  {id:'6',name:'永生花玻璃罩',cat:'永生花',price:2800,unit:'個'},
+  {id:'7',name:'乾燥花束',cat:'乾燥花',price:980,unit:'束'},
+  {id:'8',name:'場地佈置費',cat:'佈置服務',price:5000,unit:'式'},
+];
+
+function lb(){
+  ['clients','quotes','products','projects'].forEach(k=>localStorage.setItem('mslab_'+k,JSON.stringify(eval(k))));
+}
+
+function pQ(q){
+  if(typeof q.items==='string')try{q.items=JSON.parse(q.items)}catch(e){q.items=[]}
+  ['total','subtotal','discount','taxRate'].forEach(k=>q[k]=parseFloat(q[k])||0);
+  return q;
+}
+
+function pPj(p){
+  ['todos','linkedClients','linkedQuotes','planItems','inbound','outbound'].forEach(k=>{
+    if(typeof p[k]==='string')try{p[k]=JSON.parse(p[k])}catch(e){p[k]=[]}
+    if(!Array.isArray(p[k]))p[k]=[];
+  });
+  ['budget','spent'].forEach(k=>p[k]=parseFloat(p[k])||0);
+  return p;
+}
+
+async function init(){
+  try{
+    setSS('saving','連線中…');
+    const [c,q,p,pj]=await Promise.all([apiGet('clients'),apiGet('quotes'),apiGet('products'),apiGet('projects')]);
+    clients=Array.isArray(c)?c:[];
+    quotes=Array.isArray(q)?q.map(pQ):[];
+    products=Array.isArray(p)&&p.length?p.map(x=>({...x,price:parseFloat(x.price)||0})):DP;
+    projects=Array.isArray(pj)?pj.map(pPj):[];
+    if(!Array.isArray(p)||!p.length)await apiSave('products',products);
+    setSS('ok','已連線 Google Sheets');
+  }catch(e){
+    setSS('error','使用本機快取');
+    ['clients','quotes','products','projects'].forEach(k=>{
+      const d=localStorage.getItem('mslab_'+k);
+      if(d)eval(k+'=JSON.parse(d)');
+    });
+    quotes=quotes.map(pQ);projects=projects.map(pPj);
+    if(!products.length)products=DP;
+  }
+  document.getElementById('loading-overlay').style.display='none';
+  renderDashboard();
+}
+
+const avCls=['av-rose','av-blue','av-green','av-amber','av-accent'];
+const avC=i=>avCls[i%avCls.length];
+function sBadge(s){const m={draft:'badge-amber',sent:'badge-blue',approved:'badge-green',cancelled:'badge-rose'};const l={draft:'草稿',sent:'已傳送',approved:'已確認',cancelled:'已取消'};return`<span class="badge ${m[s]||'badge-gray'}">${l[s]||s}</span>`}
+function tBadge(t){const m={'個人':'badge-blue','企業':'badge-green','婚禮':'badge-rose','活動主辦':'badge-amber'};return`<span class="badge ${m[t]||'badge-accent'}">${t}</span>`}
+function cBadge(c){const m={'花藝設計':'badge-rose','佈置服務':'badge-accent','新鮮花材':'badge-green','乾燥花':'badge-amber','永生花':'badge-blue','其他':'badge-gray'};return`<span class="badge ${m[c]||'badge-gray'}" style="font-size:10px">${c}</span>`}
+function pjTypeBadge(t){const m={節慶:'badge-amber',婚禮:'badge-rose',企業活動:'badge-blue',開幕:'badge-green',畢業:'badge-purple',自訂:'badge-gray'};return`<span class="badge ${m[t]||'badge-gray'}">${t}</span>`}
+function pjSBadge(s){const m={planning:'badge-amber',active:'badge-green',done:'badge-gray'};const l={planning:'規劃中',active:'進行中',done:'已完成'};return`<span class="badge ${m[s]||'badge-gray'}">${l[s]||s}</span>`}
+function inSBadge(s){return s==='已到貨'?'<span class="badge badge-green">已到貨</span>':'<span class="badge badge-amber">待到貨</span>'}
+function outSBadge(s){return s==='已出貨'?'<span class="badge badge-green">已出貨</span>':'<span class="badge badge-amber">待出貨</span>'}
+function todoProg(pj){const t=pj.todos||[];if(!t.length)return 0;return Math.round(t.filter(x=>x.done).length/t.length*100)}
+
+function nav(page,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el&&el.classList.contains('nav-item')) el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('page-title').textContent={today:'今日工事',tasks:'待辦清單',dashboard:'總覽',projects:'專案管理',clients:'客戶管理',quotes:'報價單',products:'花材品項庫'}[page];
+  // sync mobile nav
+  document.querySelectorAll('.mobile-nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.page===page);
+  });
+  if(page==='today')renderToday();
+  if(page==='tasks')renderTasks();
+  if(page==='dashboard')renderDashboard();
+  if(page==='projects'){renderProjects();showPjList();}
+  if(page==='clients')renderClients();
+  if(page==='quotes'){renderQuotes();showQList();}
+  if(page==='products')renderProducts();
+}
+
+// ── Tasks & Today ────────────────────────────────────────
+let tasks = JSON.parse(localStorage.getItem('mslab_tasks')||'[]');
+let taskFilter = 'all';
+let editingTaskId = null;
+
+const CAT_META = {
+  make:    {label:'花藝製作', icon:'🌸'},
+  ship:    {label:'出貨',     icon:'📦'},
+  contact: {label:'客戶聯繫', icon:'♡'},
+  buy:     {label:'進貨',     icon:'⬇'},
+  memo:    {label:'備忘',     icon:'📝'},
+  other:   {label:'其他',     icon:'📌'},
+};
+
+function saveTasksLocal(){localStorage.setItem('mslab_tasks',JSON.stringify(tasks));}
+
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+// Collect today's items: standalone tasks + project todos due today
+function getTodayItems(){
+  const today = todayStr();
+  const items = [];
+  tasks.forEach((t,i)=>{
+    if(!t.done && (t.date===today || t.pinned)){
+      items.push({...t, _src:'task', _idx:i});
+    }
+  });
+  projects.forEach(pj=>{
+    (pj.todos||[]).forEach((td,i)=>{
+      if(!td.done && td.date===today){
+        items.push({text:td.text, cat:td.cat||'other', note:'', done:false,
+          _src:'project', _pjId:pj.id, _idx:i, _pjName:pj.name});
+      }
+    });
+  });
+  return items;
+}
+
+function renderToday(){
+  const now = new Date();
+  const label = now.toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  document.getElementById('today-date-label').textContent = label;
+
+  const items = getTodayItems();
+  const grid = document.getElementById('today-cards-grid');
+  const empty = document.getElementById('today-empty-state');
+
+  if(!items.length){
+    grid.innerHTML=''; empty.style.display='';return;
+  }
+  empty.style.display='none';
+
+  // Group by cat
+  const grouped = {};
+  items.forEach(it=>{
+    const c = it.cat||'other';
+    if(!grouped[c]) grouped[c]=[];
+    grouped[c].push(it);
+  });
+
+  grid.innerHTML = Object.entries(grouped).map(([cat, its])=>{
+    const m = CAT_META[cat]||{label:cat,icon:'📌'};
+    return `<div class="today-card">
+      <div class="today-card-head">
+        <div class="today-card-title"><span class="today-card-icon">${m.icon}</span>${m.label}</div>
+        <span style="font-size:11px;color:var(--text3)">${its.length} 項</span>
+      </div>
+      <div class="today-items">
+        ${its.map((it,i)=>`
+          <div class="today-item ${it.done?'done':''}">
+            <div class="today-check ${it.done?'checked':''}" onclick="toggleTodayItem('${it._src}','${it._src==='task'?it.id:it._pjId}',${it._idx})">${it.done?'✓':''}</div>
+            <div style="flex:1">
+              <div class="today-item-text">${it.text}${it.pinned?` <span style="font-size:10px;color:var(--accent)">📌</span>`:''}</div>
+              ${it._pjName?`<div style="font-size:10px;color:var(--text3)">專案：${it._pjName}</div>`:''}
+              ${it.note?`<div style="font-size:10px;color:var(--text3)">${it.note}</div>`:''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTodayItem(src, idOrPjId, idx){
+  if(src==='task'){
+    const t = tasks.find(t=>t.id===idOrPjId);
+    if(t){t.done=!t.done;saveTasksLocal();}
+  } else {
+    const pj = getPj(idOrPjId);
+    if(pj&&pj.todos[idx]){pj.todos[idx].done=!pj.todos[idx].done;lb();savePjs();}
+  }
+  renderToday();
+}
+
+// ── Task CRUD ────────────────────────────────────────────
+function openTaskModal(id){
+  editingTaskId = id||null;
+  document.getElementById('task-modal-title').textContent = id?'編輯待辦':'新增待辦';
+  if(id){
+    const t=tasks.find(t=>t.id===id);
+    document.getElementById('tk-text').value=t.text;
+    document.getElementById('tk-cat').value=t.cat;
+    document.getElementById('tk-date').value=t.date||'';
+    document.getElementById('tk-note').value=t.note||'';
+    document.getElementById('tk-pin').checked=!!t.pinned;
+  } else {
+    ['tk-text','tk-note'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('tk-cat').value='make';
+    document.getElementById('tk-date').value='';
+    document.getElementById('tk-pin').checked=false;
+  }
+  document.getElementById('task-modal').classList.add('open');
+}
+
+function saveTask(){
+  const text=document.getElementById('tk-text').value.trim();
+  if(!text){alert('請輸入待辦事項');return;}
+  const pinned=document.getElementById('tk-pin').checked;
+  if(editingTaskId){
+    const t=tasks.find(t=>t.id===editingTaskId);
+    t.text=text;t.cat=document.getElementById('tk-cat').value;
+    t.date=document.getElementById('tk-date').value;
+    t.note=document.getElementById('tk-note').value.trim();
+    t.pinned=pinned;
+  } else {
+    tasks.push({id:'TK-'+Date.now(),text,cat:document.getElementById('tk-cat').value,date:document.getElementById('tk-date').value,note:document.getElementById('tk-note').value.trim(),pinned,done:false,createdAt:new Date().toISOString()});
+  }
+  saveTasksLocal();closeModal('task-modal');renderTasks();renderToday();
+}
+
+function filterTasks(f,el){
+  taskFilter=f;
+  document.querySelectorAll('[id^=tf-]').forEach(b=>b.classList.remove('btn-primary'));
+  el.classList.add('btn-primary');
+  renderTasks();
+}
+
+function renderTasks(){
+  const today=todayStr();
+  let list=tasks.slice().sort((a,b)=>{
+    if(!a.date&&!b.date)return 0;if(!a.date)return 1;if(!b.date)return -1;
+    return a.date.localeCompare(b.date);
+  });
+  if(taskFilter==='pending') list=list.filter(t=>!t.done);
+  if(taskFilter==='done')    list=list.filter(t=>t.done);
+
+  // Also show project todos that have a date
+  const pjTasks=[];
+  projects.forEach(pj=>{
+    (pj.todos||[]).forEach((td,i)=>{
+      if(td.date) pjTasks.push({...td,_pjId:pj.id,_pjName:pj.name,_idx:i,_isPj:true});
+    });
+  });
+  const allList=[...list,...pjTasks.filter(t=>taskFilter==='done'?t.done:taskFilter==='pending'?!t.done:true)];
+
+  const tb=document.getElementById('tasks-body');
+  if(!allList.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">✓</div>沒有待辦事項</div></td></tr>';return;}
+  tb.innerHTML=allList.map(t=>{
+    const m=CAT_META[t.cat||'other']||{label:'其他',icon:'📌'};
+    const isToday=t.date===today;
+    const isPast=t.date&&t.date<today&&!t.done;
+    const dateColor=isPast?'var(--rose)':isToday?'var(--green)':'var(--text3)';
+    if(t._isPj){
+      return`<tr style="${t.done?'opacity:.5':''}">
+        <td><div class="today-check ${t.done?'checked':''}" onclick="togglePjTodo('${t._pjId}',${t._idx})" style="cursor:pointer">${t.done?'✓':''}</div></td>
+        <td>${t.text}${t.done?'<span style="color:var(--text3);font-size:11px;margin-left:6px">已完成</span>':''}</td>
+        <td><span style="font-size:12px">${m.icon} ${m.label}</span></td>
+        <td style="font-size:12px;color:${dateColor}">${t.date||'—'}${isToday?' 📍':isPast?' ⚠':''}</td>
+        <td><span class="badge badge-purple" style="font-size:10px">${t._pjName}</span></td>
+        <td></td>
+      </tr>`;
+    }
+    return`<tr style="${t.done?'opacity:.5':''}">
+      <td><div class="today-check ${t.done?'checked':''}" onclick="toggleTask('${t.id}')" style="cursor:pointer">${t.done?'✓':''}</div></td>
+      <td>${t.text}${t.pinned?` <span style="font-size:11px;color:var(--accent)">📌</span>`:''} ${t.note?`<div style="font-size:11px;color:var(--text3)">${t.note}</div>`:''}</td>
+      <td><span style="font-size:12px">${m.icon} ${m.label}</span></td>
+      <td style="font-size:12px;color:${dateColor}">${t.date||'—'}${isToday?' 📍':isPast?' ⚠':''}</td>
+      <td><span style="font-size:11px;color:var(--text3)">獨立待辦</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-icon" onclick="openTaskModal('${t.id}')">✎</button>
+        <button class="btn btn-sm btn-icon" onclick="deleteTask('${t.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleTask(id){
+  const t=tasks.find(t=>t.id===id);if(t){t.done=!t.done;saveTasksLocal();renderTasks();renderToday();}
+}
+function togglePjTodo(pjId,i){
+  const pj=getPj(pjId);if(pj&&pj.todos[i]){pj.todos[i].done=!pj.todos[i].done;lb();savePjs();renderTasks();renderToday();}
+}
+function deleteTask(id){
+  if(!confirm('確定要刪除這個待辦？'))return;
+  tasks=tasks.filter(t=>t.id!==id);saveTasksLocal();renderTasks();renderToday();
+}
+
+function renderDashboard(){
+  const active=projects.filter(p=>p.status==='active');
+  document.getElementById('stat-projects').textContent=active.length;
+  document.getElementById('stat-clients').textContent=clients.length;
+  document.getElementById('stat-quotes').textContent=quotes.length;
+  document.getElementById('stat-revenue').textContent='NT$'+quotes.reduce((a,q)=>a+(q.total||0),0).toLocaleString();
+  const dp=document.getElementById('dash-projects');
+  dp.innerHTML=active.slice(0,4).map(pj=>`<div style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openPjDetail('${pj.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:500">${pj.name}</span>${pjTypeBadge(pj.type)}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:5px">${pj.end?'截止：'+pj.end:''}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${todoProg(pj)}%"></div></div>
+    <div style="font-size:10px;color:var(--text3);margin-top:3px">待辦 ${todoProg(pj)}% 完成</div>
+  </div>`).join('')||'<div class="empty"><div class="empty-icon">❋</div>無進行中專案</div>';
+  const qb=document.getElementById('dash-quotes');
+  const rq=quotes.slice(-5).reverse();
+  qb.innerHTML=rq.length?rq.map(q=>`<tr><td>${q.clientName||'—'}</td><td>${q.project||'—'}</td><td style="font-weight:500">NT$${(q.total||0).toLocaleString()}</td><td>${sBadge(q.status)}</td></tr>`).join(''):'<tr><td colspan="4"><div class="empty"><div class="empty-icon">✿</div>尚無報價單</div></td></tr>';
+}
+
+// ── Projects ────────────────────────────────────────────
+function showPjList(){document.getElementById('project-list-view').style.display='';document.getElementById('project-detail-view').style.display='none'}
+function filterProjects(f,el){
+  pjFilter=f;
+  document.querySelectorAll('[id^=pf-]').forEach(b=>{b.classList.remove('btn-primary');b.style.color='';b.style.borderColor=''});
+  el.classList.add('btn-primary');
+  renderProjects();
+}
+function renderProjects(){
+  const list=pjFilter==='all'?projects:projects.filter(p=>p.status===pjFilter);
+  const g=document.getElementById('projects-grid');
+  if(!list.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">❋</div>尚無專案</div>';return}
+  g.innerHTML=list.map(pj=>{
+    const prog=todoProg(pj);
+    const over=pj.budget>0&&pj.spent>pj.budget;
+    const planTotal=(pj.planItems||[]).reduce((a,x)=>a+(parseFloat(x.price)||0)*(parseFloat(x.qty)||0),0);
+    const inTotal=(pj.inbound||[]).reduce((a,x)=>a+(parseFloat(x.amount)||0),0);
+    const outTotal=(pj.outbound||[]).reduce((a,x)=>a+(parseFloat(x.amount)||0),0);
+    return`<div class="project-card" onclick="openPjDetail('${pj.id}')">
+      <div class="project-card-top"><div class="project-name">${pj.name}</div>${pjSBadge(pj.status)}</div>
+      <div style="margin-bottom:6px">${pjTypeBadge(pj.type)}</div>
+      <div class="project-meta">${pj.start?'開始：'+pj.start+'　':''}${pj.end?'截止：'+pj.end:''}${pj.desc?`<br>${pj.desc.slice(0,36)}${pj.desc.length>36?'…':''}`:''}
+      </div>
+      ${pj.budget>0?`<div style="font-size:11px;color:${over?'var(--rose)':'var(--green)'}">預算 NT$${pj.budget.toLocaleString()} | 花費 NT$${pj.spent.toLocaleString()} ${over?'⚠':''}</div>`:''}
+      ${(pj.todos||[]).length?`<div style="margin:8px 0 4px"><div class="progress-bar"><div class="progress-fill" style="width:${prog}%"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px">待辦 ${prog}%</div></div>`:''}
+      <div class="project-stats">
+        <div class="project-stat-item"><span class="project-stat-num">${(pj.planItems||[]).length}</span><span class="project-stat-lbl">商品規劃</span></div>
+        <div class="project-stat-item"><span class="project-stat-num">${(pj.inbound||[]).length}</span><span class="project-stat-lbl">進貨</span></div>
+        <div class="project-stat-item"><span class="project-stat-num">${(pj.outbound||[]).length}</span><span class="project-stat-lbl">出貨</span></div>
+        <div class="project-stat-item"><span class="project-stat-num">${(pj.todos||[]).length}</span><span class="project-stat-lbl">待辦</span></div>
+      </div>
+      <div class="project-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="editProject('${pj.id}')">✎ 編輯</button>
+        <button class="btn btn-sm" onclick="deletePj('${pj.id}')">🗑 刪除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPjDetail(id){
+  const pj=projects.find(p=>p.id===id);if(!pj)return;
+  document.getElementById('project-list-view').style.display='none';
+  document.getElementById('project-detail-view').style.display='';
+  renderPjDetail(pj);
+}
+
+function renderPjDetail(pj){
+  const prog=todoProg(pj);
+  const over=pj.budget>0&&pj.spent>pj.budget;
+  const linkedQ=quotes.filter(q=>(pj.linkedQuotes||[]).includes(q.id));
+  const linkedC=clients.filter(c=>(pj.linkedClients||[]).includes(c.name));
+  const inv=calcInventory(pj);
+
+  // Summary numbers
+  const planRevenue=(pj.planItems||[]).reduce((a,x)=>a+(parseFloat(x.price)||0)*(parseFloat(x.qty)||0),0);
+  const planCost=(pj.planItems||[]).reduce((a,x)=>a+(parseFloat(x.cost)||0)*(parseFloat(x.qty)||0),0);
+  const inTotal=(pj.inbound||[]).reduce((a,x)=>a+(parseFloat(x.amount)||0),0);
+  const outTotal=(pj.outbound||[]).reduce((a,x)=>a+(parseFloat(x.amount)||0),0);
+
+  document.getElementById('project-detail-view').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+      <button class="btn" onclick="showPjList()">← 返回</button>
+      <h2 style="font-family:'Noto Serif TC',serif;font-size:18px;font-weight:400;flex:1">${pj.name}</h2>
+      ${pjTypeBadge(pj.type)} ${pjSBadge(pj.status)}
+      <button class="btn btn-sm" onclick="editProject('${pj.id}')">✎ 編輯</button>
+    </div>
+
+    <div class="summary-strip">
+      <div class="summary-item"><span class="summary-label">預計銷售額</span><span class="summary-value">NT$${planRevenue.toLocaleString()}</span></div>
+      <div class="summary-item"><span class="summary-label">預計成本</span><span class="summary-value">NT$${planCost.toLocaleString()}</span></div>
+      <div class="summary-item"><span class="summary-label">預計毛利</span><span class="summary-value" style="color:${planRevenue-planCost>=0?'var(--green)':'var(--rose)'}">NT$${(planRevenue-planCost).toLocaleString()}</span></div>
+      <div class="summary-item"><span class="summary-label">進貨總額</span><span class="summary-value">NT$${inTotal.toLocaleString()}</span></div>
+      <div class="summary-item"><span class="summary-label">出貨總額</span><span class="summary-value">NT$${outTotal.toLocaleString()}</span></div>
+      ${pj.budget>0?`<div class="summary-item"><span class="summary-label">預算花費</span><span class="summary-value ${over?'budget-over':'budget-ok'}">NT$${pj.spent.toLocaleString()} / ${pj.budget.toLocaleString()}</span></div>`:''}
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab(this,'ptab-plan')">🌸 商品規劃</div>
+      <div class="tab" onclick="switchTab(this,'ptab-inv')">📦 庫存總覽</div>
+      <div class="tab" onclick="switchTab(this,'ptab-in')">⬇ 進貨</div>
+      <div class="tab" onclick="switchTab(this,'ptab-out')">⬆ 出貨</div>
+      <div class="tab" onclick="switchTab(this,'ptab-todo')">✓ 待辦</div>
+      <div class="tab" onclick="switchTab(this,'ptab-linked')">🔗 關聯</div>
+    </div>
+
+    <!-- 商品規劃 -->
+    <div class="tab-panel active" id="ptab-plan">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">規劃這個專案要製作哪些商品、數量、售價與成本</div>
+      <div class="plan-head"><span>品項名稱</span><span>數量</span><span>售價/個(NT$)</span><span>成本/個(NT$)</span><span>主色調</span><span>設計備註</span><span></span></div>
+      <div id="plan-rows-${pj.id}">
+        ${(pj.planItems||[]).map((it,i)=>planRowHTML(pj.id,i,it)).join('')}
+      </div>
+      <button class="add-item-btn" onclick="addPlanItem('${pj.id}')">＋ 新增商品規劃</button>
+      ${(pj.planItems||[]).length?`<div style="display:flex;gap:1.5rem;margin-top:12px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:13px">
+        <div>總件數：<strong>${(pj.planItems||[]).reduce((a,x)=>a+(parseInt(x.qty)||0),0)}</strong></div>
+        <div>預計銷售：<strong>NT$${planRevenue.toLocaleString()}</strong></div>
+        <div>預計成本：<strong>NT$${planCost.toLocaleString()}</strong></div>
+        <div style="color:${planRevenue-planCost>=0?'var(--green)':'var(--rose)'}">毛利：<strong>NT$${(planRevenue-planCost).toLocaleString()}</strong></div>
+      </div>`:''}
+    </div>
+
+    <!-- 庫存 -->
+    <div class="tab-panel" id="ptab-inv">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">根據進貨與出貨自動計算庫存</div>
+      ${Object.keys(inv).length?`<div class="inv-grid">${Object.entries(inv).map(([name,v])=>`
+        <div class="inv-card">
+          <div class="inv-name">${name}</div>
+          <div class="inv-row"><span>進貨</span><span>${v.in} ${v.unit}</span></div>
+          <div class="inv-row"><span>已出貨</span><span>${v.out} ${v.unit}</span></div>
+          <div class="inv-row ${v.stock<=0?'warn':'ok'}"><span>剩餘</span><span>${v.stock} ${v.unit}</span></div>
+        </div>`).join('')}</div>`:'<div class="empty"><div class="empty-icon">📦</div>尚無進出貨記錄，庫存自動計算</div>'}
+    </div>
+
+    <!-- 進貨 -->
+    <div class="tab-panel" id="ptab-in">
+      <div class="in-head"><span>花材名稱</span><span>數量</span><span>單位</span><span>金額(NT$)</span><span>預計到貨日</span><span>供應商</span><span></span></div>
+      <div id="in-rows-${pj.id}">
+        ${(pj.inbound||[]).map((it,i)=>inRowHTML(pj.id,i,it)).join('')}
+      </div>
+      <button class="add-item-btn" onclick="addInbound('${pj.id}')">＋ 新增進貨</button>
+      ${(pj.inbound||[]).length?`<div style="display:flex;gap:1.5rem;margin-top:12px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:13px">
+        <div>待到貨：<strong>${(pj.inbound||[]).filter(x=>x.status!=='已到貨').length} 筆</strong></div>
+        <div>進貨總額：<strong>NT$${inTotal.toLocaleString()}</strong></div>
+      </div>`:''}
+    </div>
+
+    <!-- 出貨 -->
+    <div class="tab-panel" id="ptab-out">
+      <div class="out-head"><span>品項名稱</span><span>數量</span><span>單位</span><span>客戶</span><span>出貨日期</span><span>金額(NT$)</span><span></span></div>
+      <div id="out-rows-${pj.id}">
+        ${(pj.outbound||[]).map((it,i)=>outRowHTML(pj.id,i,it)).join('')}
+      </div>
+      <button class="add-item-btn" onclick="addOutbound('${pj.id}')">＋ 新增出貨</button>
+      ${(pj.outbound||[]).length?`<div style="display:flex;gap:1.5rem;margin-top:12px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:13px">
+        <div>待出貨：<strong>${(pj.outbound||[]).filter(x=>x.status!=='已出貨').length} 筆</strong></div>
+        <div>出貨總額：<strong>NT$${outTotal.toLocaleString()}</strong></div>
+      </div>`:''}
+    </div>
+
+    <!-- 待辦 -->
+    <div class="tab-panel" id="ptab-todo">
+      <div class="todo-list" id="todo-list-${pj.id}">
+        ${(pj.todos||[]).map((t,i)=>`<div class="todo-item ${t.done?'done':''}">
+          <div class="todo-check ${t.done?'checked':''}" onclick="toggleTodo('${pj.id}',${i})">${t.done?'✓':''}</div>
+          <span class="todo-text">${t.text}</span>
+          ${t.date?`<span style="font-size:10px;color:${t.date===todayStr()?'var(--green)':'var(--text3)'};white-space:nowrap">${t.date===todayStr()?'📍今天':t.date}</span>`:''}
+          <button class="todo-del" onclick="deleteTodo('${pj.id}',${i})">✕</button>
+        </div>`).join('')}
+      </div>
+      <div class="todo-add">
+        <select id="todo-cat-${pj.id}" style="width:120px;font-size:12px">
+          <option value="make">🌸 花藝製作</option>
+          <option value="ship">📦 出貨</option>
+          <option value="contact">♡ 客戶聯繫</option>
+          <option value="buy">⬇ 進貨</option>
+          <option value="memo">📝 備忘</option>
+          <option value="other">其他</option>
+        </select>
+        <input type="text" id="todo-input-${pj.id}" placeholder="新增待辦…" style="flex:1" onkeydown="if(event.key==='Enter')addTodo('${pj.id}')">
+        <input type="date" id="todo-date-${pj.id}" style="width:140px" title="預定日期（設定後會出現在今日工事）">
+        <button class="btn btn-sm" onclick="addTodo('${pj.id}')">新增</button>
+      </div>
+      ${(pj.todos||[]).length?`<div style="margin-top:10px"><div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:${prog}%"></div></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">${(pj.todos||[]).filter(t=>t.done).length} / ${(pj.todos||[]).length} 完成</div></div>`:''}
+    </div>
+
+    <!-- 關聯 -->
+    <div class="tab-panel" id="ptab-linked">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">關聯客戶</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <select id="lc-sel-${pj.id}" style="flex:1"><option value="">— 選擇客戶 —</option>${clients.map(c=>`<option value="${c.name}">${c.name}</option>`).join('')}</select>
+            <button class="btn btn-sm btn-primary" onclick="linkC('${pj.id}')">加入</button>
+          </div>
+          <div class="linked-list">${linkedC.length?linkedC.map((c,i)=>`<div class="linked-item">
+            <div class="linked-item-left"><div class="avatar ${avC(i)}" style="width:26px;height:26px;font-size:11px">${c.name.slice(0,2)}</div>${c.name} ${tBadge(c.type)}</div>
+            <button class="btn btn-sm btn-icon" onclick="unlinkC('${pj.id}','${c.name}')">✕</button>
+          </div>`).join(''):'<div class="empty" style="padding:1rem"><div class="empty-icon">♡</div>尚未關聯客戶</div>'}</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">關聯報價單</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <select id="lq-sel-${pj.id}" style="flex:1"><option value="">— 選擇報價單 —</option>${quotes.map(q=>`<option value="${q.id}">${q.id} ${q.clientName}</option>`).join('')}</select>
+            <button class="btn btn-sm btn-primary" onclick="linkQ('${pj.id}')">加入</button>
+          </div>
+          <div class="linked-list">${linkedQ.length?linkedQ.map(q=>`<div class="linked-item">
+            <div class="linked-item-left"><span style="font-size:11px;color:var(--text3)">${q.id}</span><span>${q.clientName}</span>${sBadge(q.status)}</div>
+            <div style="display:flex;gap:8px;align-items:center"><span style="font-weight:500">NT$${q.total.toLocaleString()}</span><button class="btn btn-sm btn-icon" onclick="unlinkQ('${pj.id}','${q.id}')">✕</button></div>
+          </div>`).join(''):'<div class="empty" style="padding:1rem"><div class="empty-icon">◻</div>尚未關聯報價單</div>'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Plan rows ────────────────────────────────────────────
+const COLOR_OPTIONS=[
+  {name:'—',hex:''},
+  {name:'白',hex:'#FFFFFF'},{name:'奶油白',hex:'#FFF8E7'},{name:'香檳',hex:'#F7E7CE'},
+  {name:'粉紅',hex:'#FFB7C5'},{name:'玫瑰粉',hex:'#E8637A'},{name:'珊瑚橘',hex:'#FF7F6E'},
+  {name:'紅',hex:'#C0392B'},{name:'酒紅',hex:'#7B2D3E'},
+  {name:'橘',hex:'#F5924E'},{name:'黃',hex:'#F5C518'},
+  {name:'綠',hex:'#4CAF50'},{name:'薄荷綠',hex:'#A8E6CF'},{name:'橄欖綠',hex:'#A8B560'},
+  {name:'藍',hex:'#3A7BD5'},{name:'天空藍',hex:'#87CEEB'},
+  {name:'紫',hex:'#9B59B6'},{name:'薰衣草',hex:'#C39BD3'},
+  {name:'棕',hex:'#8B5E3C'},{name:'灰',hex:'#BDBDBD'},{name:'黑',hex:'#2C2C2C'},
+];
+
+function planRowHTML(pjId,i,it){
+  const curHex=it.colorHex||'';
+  return`<div class="plan-row" id="prow-${pjId}-${i}">
+    <div>
+      <input type="text" value="${it.name||''}" placeholder="品項名稱" list="ppl-${pjId}-${i}"
+        oninput="updatePlan('${pjId}',${i},'name',this.value)" onchange="applyPlanProduct('${pjId}',${i},this.value)">
+      <datalist id="ppl-${pjId}-${i}">${products.map(p=>`<option value="${p.name}">`).join('')}</datalist>
+    </div>
+    <input type="number" value="${it.qty||0}" min="0" placeholder="0" oninput="updatePlan('${pjId}',${i},'qty',this.value);refreshPlanSummary('${pjId}')">
+    <input type="number" value="${it.price||0}" min="0" placeholder="售價" oninput="updatePlan('${pjId}',${i},'price',this.value);refreshPlanSummary('${pjId}')">
+    <input type="number" value="${it.cost||0}" min="0" placeholder="成本" oninput="updatePlan('${pjId}',${i},'cost',this.value);refreshPlanSummary('${pjId}')">
+    <div class="color-select-wrap">
+      <div class="color-dot" id="cdot-${pjId}-${i}" style="background:${curHex||'transparent'};${!curHex?'border:1px solid var(--border2)':''}"></div>
+      <select style="flex:1;font-size:12px" onchange="pickColor('${pjId}',${i},this)">
+        ${COLOR_OPTIONS.map(c=>`<option value="${c.hex}" ${curHex===c.hex?'selected':''}>${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <input type="text" value="${it.note||''}" placeholder="設計備註…" oninput="updatePlan('${pjId}',${i},'note',this.value)">
+    <button class="del-btn" onclick="delPlanItem('${pjId}',${i})">✕</button>
+  </div>`;
+}
+
+function inRowHTML(pjId,i,it){
+  return`<div class="in-row" id="inrow-${pjId}-${i}">
+    <input type="text" value="${it.name||''}" placeholder="花材名稱" oninput="updateIn('${pjId}',${i},'name',this.value)">
+    <input type="number" value="${it.qty||0}" min="0" oninput="updateIn('${pjId}',${i},'qty',this.value)">
+    <input type="text" value="${it.unit||'束'}" placeholder="束" oninput="updateIn('${pjId}',${i},'unit',this.value)">
+    <input type="number" value="${it.amount||0}" min="0" placeholder="0" oninput="updateIn('${pjId}',${i},'amount',this.value)">
+    <input type="date" value="${it.eta||''}" oninput="updateIn('${pjId}',${i},'eta',this.value)">
+    <div style="display:flex;gap:4px;align-items:center">
+      <input type="text" value="${it.supplier||''}" placeholder="供應商" oninput="updateIn('${pjId}',${i},'supplier',this.value)" style="flex:1">
+      <select style="width:80px" onchange="updateIn('${pjId}',${i},'status',this.value)">
+        <option ${it.status==='待到貨'?'selected':''}>待到貨</option>
+        <option ${it.status==='已到貨'?'selected':''}>已到貨</option>
+      </select>
+    </div>
+    <button class="del-btn" onclick="delIn('${pjId}',${i})">✕</button>
+  </div>`;
+}
+
+function outRowHTML(pjId,i,it){
+  return`<div class="out-row" id="outrow-${pjId}-${i}">
+    <input type="text" value="${it.name||''}" placeholder="品項名稱" oninput="updateOut('${pjId}',${i},'name',this.value)">
+    <input type="number" value="${it.qty||0}" min="0" oninput="updateOut('${pjId}',${i},'qty',this.value)">
+    <input type="text" value="${it.unit||'束'}" placeholder="束" oninput="updateOut('${pjId}',${i},'unit',this.value)">
+    <input type="text" value="${it.client||''}" placeholder="客戶名稱" list="ocl-${pjId}-${i}" oninput="updateOut('${pjId}',${i},'client',this.value)">
+    <datalist id="ocl-${pjId}-${i}">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
+    <input type="date" value="${it.date||''}" oninput="updateOut('${pjId}',${i},'date',this.value)">
+    <input type="number" value="${it.amount||0}" min="0" placeholder="0" oninput="updateOut('${pjId}',${i},'amount',this.value)">
+    <select onchange="updateOut('${pjId}',${i},'status',this.value)">
+      <option ${it.status==='待出貨'?'selected':''}>待出貨</option>
+      <option ${it.status==='已出貨'?'selected':''}>已出貨</option>
+    </select>
+    <button class="del-btn" onclick="delOut('${pjId}',${i})">✕</button>
+  </div>`;
+}
+
+// ── Plan item operations ─────────────────────────────────
+function getPj(id){return projects.find(p=>p.id===id)}
+
+function updatePlan(pjId,i,key,val){const pj=getPj(pjId);if(pj&&pj.planItems[i])pj.planItems[i][key]=val;debounceSave(pjId);}
+
+function pickColor(pjId,i,sel){
+  const hex=sel.value;
+  const opt=COLOR_OPTIONS.find(c=>c.hex===hex);
+  const pj=getPj(pjId);if(!pj||!pj.planItems[i])return;
+  pj.planItems[i].colorHex=hex;
+  pj.planItems[i].colorName=opt?opt.name:'';
+  const dot=document.getElementById('cdot-'+pjId+'-'+i);
+  if(dot){dot.style.background=hex||'transparent';dot.style.border=hex?'none':'1px solid var(--border2)';}
+  debounceSave(pjId);
+}
+function updateIn(pjId,i,key,val){const pj=getPj(pjId);if(pj&&pj.inbound[i])pj.inbound[i][key]=val;debounceSave(pjId);}
+function updateOut(pjId,i,key,val){const pj=getPj(pjId);if(pj&&pj.outbound[i])pj.outbound[i][key]=val;debounceSave(pjId);}
+
+function applyPlanProduct(pjId,i,name){
+  const p=products.find(p=>p.name===name);
+  const pj=getPj(pjId);
+  if(p&&pj){pj.planItems[i].price=p.price;pj.planItems[i].name=p.name;renderPjDetail(pj);}
+}
+
+function addPlanItem(pjId){const pj=getPj(pjId);if(!pj)return;pj.planItems.push({name:'',qty:1,price:0,cost:0,note:''});renderPjDetail(pj);switchTabById('ptab-plan');}
+function delPlanItem(pjId,i){const pj=getPj(pjId);if(!pj)return;pj.planItems.splice(i,1);lb();renderPjDetail(pj);switchTabById('ptab-plan');savePjs();}
+function addInbound(pjId){const pj=getPj(pjId);if(!pj)return;pj.inbound.push({name:'',qty:1,unit:'束',amount:0,eta:'',supplier:'',status:'待到貨'});renderPjDetail(pj);switchTabById('ptab-in');}
+function delIn(pjId,i){const pj=getPj(pjId);if(!pj)return;pj.inbound.splice(i,1);lb();renderPjDetail(pj);switchTabById('ptab-in');savePjs();}
+function addOutbound(pjId){const pj=getPj(pjId);if(!pj)return;pj.outbound.push({name:'',qty:1,unit:'束',client:'',date:'',amount:0,status:'待出貨'});renderPjDetail(pj);switchTabById('ptab-out');}
+function delOut(pjId,i){const pj=getPj(pjId);if(!pj)return;pj.outbound.splice(i,1);lb();renderPjDetail(pj);switchTabById('ptab-out');savePjs();}
+
+function refreshPlanSummary(pjId){/* summary updates on re-render */}
+
+let saveTimer=null;
+function debounceSave(pjId){lb();clearTimeout(saveTimer);saveTimer=setTimeout(()=>savePjs(),2000);}
+
+// ── Inventory calc ───────────────────────────────────────
+function calcInventory(pj){
+  const inv={};
+  (pj.inbound||[]).forEach(it=>{
+    const n=it.name||'未命名';
+    if(!inv[n])inv[n]={in:0,out:0,stock:0,unit:it.unit||''};
+    inv[n].in+=parseFloat(it.qty)||0;
+    inv[n].unit=it.unit||inv[n].unit;
+  });
+  (pj.outbound||[]).forEach(it=>{
+    const n=it.name||'未命名';
+    if(!inv[n])inv[n]={in:0,out:0,stock:0,unit:it.unit||''};
+    if(it.status==='已出貨')inv[n].out+=parseFloat(it.qty)||0;
+  });
+  Object.keys(inv).forEach(k=>inv[k].stock=inv[k].in-inv[k].out);
+  return inv;
+}
+
+// ── Todo ────────────────────────────────────────────────
+async function addTodo(pjId){
+  const inp=document.getElementById('todo-input-'+pjId);
+  const t=inp.value.trim();if(!t)return;
+  const cat=document.getElementById('todo-cat-'+pjId)?.value||'other';
+  const date=document.getElementById('todo-date-'+pjId)?.value||'';
+  const pj=getPj(pjId);pj.todos.push({text:t,done:false,cat,date});inp.value='';
+  lb();renderPjDetail(pj);switchTabById('ptab-todo');await savePjs();renderToday();
+}
+async function toggleTodo(pjId,i){
+  const pj=getPj(pjId);pj.todos[i].done=!pj.todos[i].done;
+  lb();renderPjDetail(pj);switchTabById('ptab-todo');await savePjs();
+}
+async function deleteTodo(pjId,i){
+  const pj=getPj(pjId);pj.todos.splice(i,1);
+  lb();renderPjDetail(pj);switchTabById('ptab-todo');await savePjs();
+}
+
+// ── Link ────────────────────────────────────────────────
+async function linkC(pjId){
+  const name=document.getElementById('lc-sel-'+pjId).value;if(!name)return;
+  const pj=getPj(pjId);if(!(pj.linkedClients||[]).includes(name)){pj.linkedClients.push(name);lb();renderPjDetail(pj);switchTabById('ptab-linked');await savePjs();}
+}
+async function unlinkC(pjId,name){const pj=getPj(pjId);pj.linkedClients=pj.linkedClients.filter(c=>c!==name);lb();renderPjDetail(pj);switchTabById('ptab-linked');await savePjs();}
+async function linkQ(pjId){
+  const qid=document.getElementById('lq-sel-'+pjId).value;if(!qid)return;
+  const pj=getPj(pjId);if(!(pj.linkedQuotes||[]).includes(qid)){pj.linkedQuotes.push(qid);lb();renderPjDetail(pj);switchTabById('ptab-linked');await savePjs();}
+}
+async function unlinkQ(pjId,qid){const pj=getPj(pjId);pj.linkedQuotes=pj.linkedQuotes.filter(q=>q!==qid);lb();renderPjDetail(pj);switchTabById('ptab-linked');await savePjs();}
+
+async function savePjs(){
+  await apiSave('projects',projects.map(pj=>({...pj,
+    todos:JSON.stringify(pj.todos||[]),
+    linkedClients:JSON.stringify(pj.linkedClients||[]),
+    linkedQuotes:JSON.stringify(pj.linkedQuotes||[]),
+    planItems:JSON.stringify(pj.planItems||[]),
+    inbound:JSON.stringify(pj.inbound||[]),
+    outbound:JSON.stringify(pj.outbound||[]),
+  })));
+}
+
+// ── Tab ──────────────────────────────────────────────────
+function switchTab(el,panelId){
+  el.closest('.tab-bar').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  switchTabById(panelId);
+}
+function switchTabById(panelId){
+  ['ptab-plan','ptab-inv','ptab-in','ptab-out','ptab-todo','ptab-linked'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.classList.toggle('active',id===panelId);
+  });
+}
+
+// ── Project CRUD ─────────────────────────────────────────
+function openProjectModal(id){
+  editingPjId=id||null;
+  document.getElementById('pj-modal-title').textContent=id?'編輯專案':'新增專案';
+  if(id){
+    const pj=getPj(id);
+    document.getElementById('pj-name').value=pj.name;
+    document.getElementById('pj-type').value=pj.type;
+    document.getElementById('pj-status').value=pj.status;
+    document.getElementById('pj-start').value=pj.start||'';
+    document.getElementById('pj-end').value=pj.end||'';
+    document.getElementById('pj-budget').value=pj.budget||'';
+    document.getElementById('pj-spent').value=pj.spent||'';
+    document.getElementById('pj-desc').value=pj.desc||'';
+  }else{
+    ['pj-name','pj-start','pj-end','pj-budget','pj-spent','pj-desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pj-type').value='節慶';
+    document.getElementById('pj-status').value='planning';
+  }
+  document.getElementById('project-modal').classList.add('open');
+}
+function editProject(id){openProjectModal(id);}
+async function saveProject(){
+  const name=document.getElementById('pj-name').value.trim();
+  if(!name){alert('請輸入專案名稱');return;}
+  if(editingPjId){
+    const pj=getPj(editingPjId);
+    Object.assign(pj,{name,type:document.getElementById('pj-type').value,status:document.getElementById('pj-status').value,start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,budget:parseFloat(document.getElementById('pj-budget').value)||0,spent:parseFloat(document.getElementById('pj-spent').value)||0,desc:document.getElementById('pj-desc').value});
+  }else{
+    projects.push({id:'PJ-'+Date.now(),name,type:document.getElementById('pj-type').value,status:document.getElementById('pj-status').value,start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,budget:parseFloat(document.getElementById('pj-budget').value)||0,spent:parseFloat(document.getElementById('pj-spent').value)||0,desc:document.getElementById('pj-desc').value,todos:[],linkedClients:[],linkedQuotes:[],planItems:[],inbound:[],outbound:[],createdAt:new Date().toISOString()});
+  }
+  lb();closeModal('project-modal');renderProjects();renderDashboard();await savePjs();
+}
+async function deletePj(id){
+  const pj=getPj(id);if(!confirm(`確定要刪除專案「${pj.name}」？`))return;
+  projects=projects.filter(p=>p.id!==id);lb();renderProjects();renderDashboard();await savePjs();
+}
+
+// ── Clients ──────────────────────────────────────────────
+function renderClients(){
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  const list=q?clients.filter(c=>c.name.includes(q)||(c.phone||'').includes(q)):clients;
+  document.getElementById('clients-body').innerHTML=list.length?list.map((c,i)=>`<tr>
+    <td><div class="name-cell"><div class="avatar ${avC(i)}">${c.name.slice(0,2)}</div>${c.name}</div></td>
+    <td>${c.phone||'—'}</td><td>${c.email||'—'}</td><td>${tBadge(c.type)}</td>
+    <td style="color:var(--text3);font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.note||'—'}</td>
+    <td><button class="btn btn-sm btn-icon" onclick="deleteClient(${clients.indexOf(c)})">🗑</button></td>
+  </tr>`).join(''):'<tr><td colspan="6"><div class="empty"><div class="empty-icon">♡</div>尚無客戶</div></td></tr>';
+}
+function openClientModal(){['c-name','c-phone','c-email','c-note','c-address'].forEach(id=>document.getElementById(id).value='');document.getElementById('c-type').value='個人';document.getElementById('client-modal').classList.add('open');}
+async function saveClient(){
+  const name=document.getElementById('c-name').value.trim();if(!name){alert('請輸入客戶姓名');return;}
+  clients.push({name,phone:document.getElementById('c-phone').value.trim(),email:document.getElementById('c-email').value.trim(),type:document.getElementById('c-type').value,address:document.getElementById('c-address').value.trim(),note:document.getElementById('c-note').value.trim(),createdAt:new Date().toISOString()});
+  lb();closeModal('client-modal');renderClients();renderDashboard();await apiSave('clients',clients);
+}
+async function deleteClient(i){if(!confirm(`確定要刪除「${clients[i].name}」？`))return;clients.splice(i,1);lb();renderClients();renderDashboard();await apiSave('clients',clients);}
+
+// ── Quotes ───────────────────────────────────────────────
+function showQList(){document.getElementById('quote-list-view').style.display='';document.getElementById('quote-form-view').style.display='none';}
+function renderQuotes(){
+  document.getElementById('quotes-body').innerHTML=quotes.length?quotes.slice().reverse().map((q,ri)=>{
+    const i=quotes.length-1-ri;
+    return`<tr><td style="font-size:11px;color:var(--text3)">${q.id}</td><td>${q.clientName||'—'}</td><td>${q.project||'—'}</td>
+    <td style="font-size:12px;color:var(--text2)">${q.date||'—'}</td><td style="font-weight:500">NT$${(q.total||0).toLocaleString()}</td>
+    <td>${sBadge(q.status)}</td>
+    <td style="display:flex;gap:6px"><button class="btn btn-sm btn-icon" onclick="previewQuote(${i})">👁</button><button class="btn btn-sm btn-icon" onclick="deleteQuote(${i})">🗑</button></td></tr>`;
+  }).join(''):'<tr><td colspan="7"><div class="empty"><div class="empty-icon">◻</div>尚無報價單</div></td></tr>';
+}
+function openNewQuote(){
+  document.getElementById('quote-form-title').textContent='新增報價單';
+  document.getElementById('q-client').innerHTML='<option value="">— 請選擇客戶 —</option>'+clients.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  ['q-project','q-note','q-orderer-phone','q-recipient-name','q-recipient-phone','q-address'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('q-date').value='';
+  document.getElementById('q-discount').value=0;document.getElementById('q-tax').value=0;
+  document.getElementById('q-delivery').value='自取';
+  document.getElementById('recipient-section').style.display='none';
+  quoteItems=[];
+  document.getElementById('quote-list-view').style.display='none';
+  document.getElementById('quote-form-view').style.display='';
+  addQItem();calcTotal();
+}
+function fillOrdererInfo(){
+  const name=document.getElementById('q-client').value;
+  const c=clients.find(c=>c.name===name);
+  if(c){
+    const ph=document.getElementById('q-orderer-phone');if(ph)ph.value=c.phone||'';
+    const ad=document.getElementById('q-address');if(ad)ad.value=c.address||'';
+  }
+}
+function toggleRecipient(){
+  const delivery=document.getElementById('q-delivery').value;
+  document.getElementById('recipient-section').style.display=delivery==='配送到府'?'':'none';
+}
+function closeQuoteForm(){showQList();}
+function addQItem(){quoteItems.push({name:'',qty:1,unit:'份',price:0});renderQItems();}
+function renderQItems(){
+  document.getElementById('quote-items-container').innerHTML=quoteItems.map((it,i)=>`<div class="item-row">
+    <div><input type="text" value="${it.name}" placeholder="品項名稱" list="qpl-${i}"
+      oninput="quoteItems[${i}].name=this.value" onchange="applyQProduct(${i},this.value)">
+      <datalist id="qpl-${i}">${products.map(p=>`<option value="${p.name}">`).join('')}</datalist></div>
+    <input type="number" value="${it.qty}" min="1" oninput="quoteItems[${i}].qty=parseFloat(this.value)||1;calcTotal()">
+    <input type="text" value="${it.unit}" oninput="quoteItems[${i}].unit=this.value">
+    <input type="number" value="${it.price}" min="0" oninput="quoteItems[${i}].price=parseFloat(this.value)||0;calcTotal()">
+    <button class="del-btn" onclick="delQItem(${i})">✕</button>
+  </div>`).join('');
+}
+function applyQProduct(i,name){const p=products.find(p=>p.name===name);if(p){quoteItems[i].price=parseFloat(p.price)||0;quoteItems[i].unit=p.unit;renderQItems();calcTotal();}}
+function delQItem(i){quoteItems.splice(i,1);renderQItems();calcTotal();}
+function calcTotal(){
+  const sub=quoteItems.reduce((a,it)=>a+(it.qty||1)*(it.price||0),0);
+  const disc=parseFloat(document.getElementById('q-discount').value)||0;
+  const tax=parseFloat(document.getElementById('q-tax').value)||0;
+  const total=Math.round(sub*(1-disc/100)*(1+tax/100));
+  document.getElementById('subtotal-display').textContent='NT$ '+Math.round(sub).toLocaleString();
+  document.getElementById('total-display').textContent='NT$ '+total.toLocaleString();
+  return{sub:Math.round(sub),total,disc,tax};
+}
+async function saveQuote(status){
+  const clientName=document.getElementById('q-client').value;if(!clientName){alert('請選擇客戶');return;}
+  const{total,sub,disc,tax}=calcTotal();
+  const id='QT-'+String(quotes.length+1).padStart(4,'0');
+  const delivery=document.getElementById('q-delivery').value;
+  const q={id,clientName,
+    ordererPhone:document.getElementById('q-orderer-phone')?.value.trim()||'',
+    project:document.getElementById('q-project').value.trim(),
+    date:document.getElementById('q-date').value,
+    delivery,
+    recipientName:delivery==='配送到府'?(document.getElementById('q-recipient-name')?.value.trim()||''):'',
+    recipientPhone:delivery==='配送到府'?(document.getElementById('q-recipient-phone')?.value.trim()||''):'',
+    address:delivery==='配送到府'?(document.getElementById('q-address')?.value.trim()||''):'',
+    note:document.getElementById('q-note').value.trim(),
+    items:JSON.parse(JSON.stringify(quoteItems)),subtotal:sub,discount:disc,taxRate:tax,total,status,createdAt:new Date().toISOString()};
+  quotes.push(q);lb();closeQuoteForm();renderQuotes();renderDashboard();
+  if(status==='sent')setTimeout(()=>previewQuote(quotes.length-1),100);
+  await apiSave('quotes',quotes.map(qq=>({...qq,items:typeof qq.items==='string'?qq.items:JSON.stringify(qq.items)})));
+}
+async function deleteQuote(i){if(!confirm(`確定要刪除 ${quotes[i].id}？`))return;quotes.splice(i,1);lb();renderQuotes();renderDashboard();await apiSave('quotes',quotes.map(qq=>({...qq,items:typeof qq.items==='string'?qq.items:JSON.stringify(qq.items)})));}
+
+// ── Products ─────────────────────────────────────────────
+function renderProducts(){
+  document.getElementById('products-body').innerHTML=products.length?products.map((p,i)=>`<tr>
+    <td style="font-weight:500">${p.name}</td><td>${cBadge(p.cat)}</td>
+    <td>NT$${parseFloat(p.price).toLocaleString()}</td><td style="color:var(--text3)">${p.unit}</td>
+    <td><button class="btn btn-sm btn-icon" onclick="deleteProduct(${i})">🗑</button></td>
+  </tr>`).join(''):'<tr><td colspan="5"><div class="empty"><div class="empty-icon">✿</div>尚無品項</div></td></tr>';
+}
+function openProductModal(){['p-name','p-price','p-unit'].forEach(id=>document.getElementById(id).value='');document.getElementById('p-cat').value='花藝設計';document.getElementById('product-modal').classList.add('open');}
+async function saveProduct(){
+  const name=document.getElementById('p-name').value.trim();if(!name){alert('請輸入品項名稱');return;}
+  products.push({id:String(Date.now()),name,cat:document.getElementById('p-cat').value,price:parseFloat(document.getElementById('p-price').value)||0,unit:document.getElementById('p-unit').value.trim()||'份'});
+  lb();closeModal('product-modal');renderProducts();await apiSave('products',products);
+}
+async function deleteProduct(i){if(!confirm(`確定要刪除「${products[i].name}」？`))return;products.splice(i,1);lb();renderProducts();await apiSave('products',products);}
+
+// ── Modal ─────────────────────────────────────────────────
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+
+// ── Preview ───────────────────────────────────────────────
+function previewQuote(i){
+  const q=quotes[i];
+  receiptSourceQuote = q;
+  const created=new Date(q.createdAt).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  const discAmt=Math.round(q.subtotal*q.discount/100);
+  const taxAmt=Math.round(q.subtotal*(1-q.discount/100)*q.taxRate/100);
+  const items=Array.isArray(q.items)?q.items:JSON.parse(q.items||'[]');
+  document.getElementById('preview-content').innerHTML=`<div class="quote-preview">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+      <div><div style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:400;letter-spacing:.08em">莯蒔 Ms.Lab</div><div style="font-size:11px;color:var(--text3);margin-top:3px">花藝設計工作室</div><div style="font-size:11px;color:var(--text3)">IG: mshf.lab_floral</div></div>
+      <div style="text-align:right;font-size:12px;color:var(--text2);line-height:2;padding-right:0"><div style="font-size:15px;font-weight:500;color:var(--text)">報價單 ${q.id}</div><div>開立日期：${created}</div>${q.date?`<div>活動日期：${q.date}</div>`:''}<div>訂購人：<strong>${q.clientName}</strong>${q.ordererPhone?' ／ '+q.ordererPhone:''}</div>${sBadge(q.status)}</div>
+    </div>
+    ${q.project?`<div style="margin-bottom:1rem"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">項目名稱</div><div style="font-weight:500;font-size:15px">${q.project}</div></div>`:''}
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem">
+      <thead><tr>
+        <th style="text-align:left;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">品項</th>
+        <th style="text-align:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">數量</th>
+        <th style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">單價</th>
+        <th style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">小計</th>
+      </tr></thead>
+      <tbody>${items.map(it=>`<tr>
+        <td style="padding:8px 0;border-bottom:1px solid var(--border)">${it.name||'—'}</td>
+        <td style="text-align:center;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text2)">${it.qty} ${it.unit}</td>
+        <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text2)">NT$${(it.price||0).toLocaleString()}</td>
+        <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);font-weight:500">NT$${Math.round((it.qty||1)*(it.price||0)).toLocaleString()}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:13px">
+      <div style="display:flex;gap:2rem"><span style="color:var(--text3)">小計</span><span>NT$${q.subtotal.toLocaleString()}</span></div>
+      ${q.discount?`<div style="display:flex;gap:2rem"><span style="color:var(--text3)">折扣 ${q.discount}%</span><span style="color:var(--rose)">- NT$${discAmt.toLocaleString()}</span></div>`:''}
+      ${q.taxRate?`<div style="display:flex;gap:2rem"><span style="color:var(--text3)">稅金 ${q.taxRate}%</span><span>NT$${taxAmt.toLocaleString()}</span></div>`:''}
+      <div style="display:flex;gap:2rem;font-size:16px;font-family:'Noto Serif TC',serif;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;width:100%;justify-content:flex-end"><span>總計</span><span style="color:var(--accent)">NT$${q.total.toLocaleString()}</span></div>
+    </div>
+    ${q.delivery||q.note||q.address?`<div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:12px;color:var(--text2);line-height:2">
+      ${q.delivery?`<div>交貨方式：${q.delivery}</div>`:''}
+      ${q.address?`<div>配送地址：${q.address}</div>`:''}
+      ${q.recipientName?`<div>收件人：${q.recipientName}${q.recipientPhone?' ／ '+q.recipientPhone:''}</div>`:''}
+      ${q.note?`<div>備註：${q.note}</div>`:''}</div>`:''}
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end">
+      <div style="font-size:11px;color:var(--text3);line-height:2">
+        <div style="font-weight:500;color:var(--text2);margin-bottom:2px">莯蒔 Ms.Lab 聯繫方式</div>
+        <div>IG：mshf.lab_floral</div>
+        <div>芳療 IG：mshf.lab_aroma</div>
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--text3)">感謝您選擇莯蒔 Ms.Lab<br>本報價單有效期為開立日起 30 天</div>
+    </div>
+  </div>`;
+  document.getElementById('preview-modal').classList.add('open');
+}
+function printQuote(){
+  const html=document.getElementById('preview-content').innerHTML;
+  const w=window.open('','_blank','width=700,height=800');
+  w.document.write(`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>莯蒔 Ms.Lab 報價單</title><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet"><style>:root{--bg:#faf9f7;--border:rgba(0,0,0,.1);--text:#1a1916;--text2:#6b6860;--text3:#9e9b96;--accent:#8b6f5e;--rose:#8c5561;}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Noto Sans TC',sans-serif;background:#fff;color:var(--text);padding:2.5rem;max-width:700px;margin:auto;font-size:14px;line-height:1.6}.quote-preview{background:var(--bg);border-radius:10px;padding:2rem;border:1px solid var(--border)}.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}.badge-amber{background:#faf3e6;color:#96713a}.badge-blue{background:#eef2f8;color:#3d5a80}.badge-green{background:#eaf2ed;color:#4a7c59}.badge-rose{background:#f7eef0;color:#8c5561}@media print{body{padding:0}}</style></head><body>${html}</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),800);
+}
+
+// ── Receipt ───────────────────────────────────────────────
+let receiptSourceQuote = null;
+let receipts = JSON.parse(localStorage.getItem('mslab_receipts')||'[]');
+
+function convertToReceipt(){
+  // open payment picker
+  closeModal('preview-modal');
+  document.getElementById('receipt-pay-modal').classList.add('open');
+}
+
+function doConvertToReceipt(){
+  if(!receiptSourceQuote){return;}
+  const q = receiptSourceQuote;
+  const payment = document.getElementById('receipt-payment').value;
+  const rcNum = 'RC-'+String(receipts.length+1).padStart(4,'0');
+  const rc = {
+    id: rcNum,
+    quoteId: q.id,
+    clientName: q.clientName,
+    project: q.project,
+    date: q.date,
+    delivery: q.delivery,
+    note: q.note,
+    items: q.items,
+    subtotal: q.subtotal,
+    discount: q.discount,
+    taxRate: q.taxRate,
+    total: q.total,
+    payment,
+    createdAt: new Date().toISOString()
+  };
+  receipts.push(rc);
+  localStorage.setItem('mslab_receipts', JSON.stringify(receipts));
+  closeModal('receipt-pay-modal');
+  showReceipt(rc);
+}
+
+function showReceipt(rc){
+  const created = new Date(rc.createdAt).toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  const discAmt = Math.round(rc.subtotal*rc.discount/100);
+  const taxAmt  = Math.round(rc.subtotal*(1-rc.discount/100)*rc.taxRate/100);
+  const items   = Array.isArray(rc.items)?rc.items:JSON.parse(rc.items||'[]');
+
+  document.getElementById('receipt-content').innerHTML=`
+  <div class="quote-preview" style="position:relative;overflow:hidden">
+
+    <!-- 已收款印章 -->
+    <div style="position:absolute;top:24px;right:24px;width:90px;height:90px;border-radius:50%;border:3px solid var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-15deg);opacity:.85;pointer-events:none">
+      <div style="font-size:9px;color:var(--green);letter-spacing:.08em;font-weight:500">莯蒔 Ms.Lab</div>
+      <div style="font-size:16px;font-weight:600;color:var(--green);font-family:'Noto Serif TC',serif;letter-spacing:.06em">已收款</div>
+      <div style="font-size:8px;color:var(--green);margin-top:2px">${created}</div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:400;letter-spacing:.08em">莯蒔 Ms.Lab</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">花藝設計工作室</div>
+        <div style="font-size:11px;color:var(--text3)">IG: mshf.lab_floral</div>
+      </div>
+      <div style="text-align:right;font-size:12px;color:var(--text2);line-height:2;padding-right:100px">
+        <div style="font-size:15px;font-weight:500;color:var(--text)">收據 ${rc.id}</div>
+        ${rc.quoteId?`<div style="font-size:11px;color:var(--text3)">對應報價單：${rc.quoteId}</div>`:''}
+        <div>開立日期：${created}</div>
+        ${rc.date?`<div>活動日期：${rc.date}</div>`:''}
+        <div>客戶：<strong>${rc.clientName}</strong></div>
+      </div>
+    </div>
+
+    ${rc.project?`<div style="margin-bottom:1rem"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">項目名稱</div><div style="font-weight:500;font-size:15px">${rc.project}</div></div>`:''}
+
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem">
+      <thead><tr>
+        <th style="text-align:left;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">品項</th>
+        <th style="text-align:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">數量</th>
+        <th style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">單價</th>
+        <th style="text-align:right;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em">小計</th>
+      </tr></thead>
+      <tbody>${items.map(it=>`<tr>
+        <td style="padding:8px 0;border-bottom:1px solid var(--border)">${it.name||'—'}</td>
+        <td style="text-align:center;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text2)">${it.qty} ${it.unit}</td>
+        <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text2)">NT$${(it.price||0).toLocaleString()}</td>
+        <td style="text-align:right;padding:8px 0;border-bottom:1px solid var(--border);font-weight:500">NT$${Math.round((it.qty||1)*(it.price||0)).toLocaleString()}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:13px">
+      <div style="display:flex;gap:2rem"><span style="color:var(--text3)">小計</span><span>NT$${rc.subtotal.toLocaleString()}</span></div>
+      ${rc.discount?`<div style="display:flex;gap:2rem"><span style="color:var(--text3)">折扣 ${rc.discount}%</span><span style="color:var(--rose)">- NT$${discAmt.toLocaleString()}</span></div>`:''}
+      ${rc.taxRate?`<div style="display:flex;gap:2rem"><span style="color:var(--text3)">稅金 ${rc.taxRate}%</span><span>NT$${taxAmt.toLocaleString()}</span></div>`:''}
+      <div style="display:flex;gap:2rem;font-size:16px;font-family:'Noto Serif TC',serif;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;width:100%;justify-content:flex-end">
+        <span>實收金額</span><span style="color:var(--green)">NT$${rc.total.toLocaleString()}</span>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;padding:.75rem 1rem;background:var(--green-light);border-radius:8px;display:flex;align-items:center;gap:10px;font-size:13px">
+      <span style="font-size:16px">💳</span>
+      <span>付款方式：<strong>${rc.payment}</strong></span>
+    </div>
+
+    <div style="margin-top:1.25rem;display:flex;justify-content:flex-end;gap:3rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <div style="text-align:center;font-size:12px;color:var(--text3)">
+        <div style="width:120px;border-bottom:1px solid var(--border2);margin-bottom:6px;height:32px"></div>
+        收款人簽名
+      </div>
+    </div>
+
+    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text3);line-height:2">
+      感謝您選擇莯蒔 Ms.Lab 花藝設計工作室<br>如有疑問請透過 IG 與我們聯繫
+    </div>
+  </div>`;
+  document.getElementById('receipt-modal').classList.add('open');
+}
+
+function printReceipt(){
+  const html = document.getElementById('receipt-content').innerHTML;
+  const w = window.open('','_blank','width=700,height=800');
+  w.document.write(`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>莯蒔 Ms.Lab 收據</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>:root{--bg:#faf9f7;--border:rgba(0,0,0,.1);--text:#1a1916;--text2:#6b6860;--text3:#9e9b96;--accent:#8b6f5e;--rose:#8c5561;--green:#4a7c59;--green-light:#eaf2ed;--border2:rgba(0,0,0,.15);}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Noto Sans TC',sans-serif;background:#fff;color:var(--text);padding:2.5rem;max-width:700px;margin:auto;font-size:14px;line-height:1.6}.quote-preview{background:var(--bg);border-radius:10px;padding:2rem;border:1px solid var(--border);position:relative;overflow:hidden}@media print{body{padding:0}}</style>
+  </head><body>${html}</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),800);
+}
+
+// ── 請在 Google Sheets 確認有這 4 個分頁：
+// clients / quotes / products / projects
+
+async function initApp(){
+  await init();
+  // 預設開啟今日工事
+  renderToday();
+}
+
+initApp();
+</script>
+</body>
+</html>
