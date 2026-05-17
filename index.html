@@ -565,10 +565,23 @@ textarea{resize:vertical}
   <button class="mobile-nav-item" onclick="nav('quotes',this)" data-page="quotes">
     <span class="mn-icon">◻</span><span class="mn-label">報價</span>
   </button>
-  <button class="mobile-nav-item" onclick="nav('dashboard',this)" data-page="dashboard">
-    <span class="mn-icon">◈</span><span class="mn-label">總覽</span>
+  <button class="mobile-nav-item" onclick="showMoreMenu()" data-page="more">
+    <span class="mn-icon">⋯</span><span class="mn-label">更多</span>
   </button>
 </nav>
+
+<!-- More menu -->
+<div id="more-menu" style="display:none;position:fixed;bottom:70px;right:0;left:0;background:var(--surface);border-top:1px solid var(--border);z-index:499;box-shadow:0 -4px 16px rgba(0,0,0,0.08);padding:.5rem 0">
+  <div onclick="nav('clients',document.querySelector('[data-page=more]'));hideMoreMenu()" style="display:flex;align-items:center;gap:12px;padding:12px 1.5rem;cursor:pointer;font-size:14px" >
+    <span style="font-size:20px">♡</span>客戶管理
+  </div>
+  <div onclick="nav('dashboard',document.querySelector('[data-page=more]'));hideMoreMenu()" style="display:flex;align-items:center;gap:12px;padding:12px 1.5rem;cursor:pointer;font-size:14px">
+    <span style="font-size:20px">◈</span>總覽
+  </div>
+  <div onclick="nav('products',document.querySelector('[data-page=more]'));hideMoreMenu()" style="display:flex;align-items:center;gap:12px;padding:12px 1.5rem;cursor:pointer;font-size:14px">
+    <span style="font-size:20px">✿</span>花材品項庫
+  </div>
+</div>
 
 <!-- Task Modal -->
 <div class="overlay" id="task-modal">
@@ -910,6 +923,13 @@ function renderDashboard(){
 }
 
 // ── Projects ────────────────────────────────────────────
+function showMoreMenu(){
+  const m=document.getElementById('more-menu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+function hideMoreMenu(){
+  document.getElementById('more-menu').style.display='none';
+}
 function showPjList(){document.getElementById('project-list-view').style.display='';document.getElementById('project-detail-view').style.display='none'}
 function filterProjects(f,el){
   pjFilter=f;
