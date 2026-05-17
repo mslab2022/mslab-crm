@@ -896,9 +896,17 @@ function lb(){
   ['clients','quotes','products','projects'].forEach(k=>localStorage.setItem('mslab_'+k,JSON.stringify(eval(k))));
 }
 
+function normalizeDate(d){
+  if(!d) return '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d; // 已經是 YYYY-MM-DD，直接用
+  try { return twDate(new Date(d)); } catch(e) { return d; }
+}
+
 function pQ(q){
   if(typeof q.items==='string')try{q.items=JSON.parse(q.items)}catch(e){q.items=[]}
   ['total','subtotal','discount','taxRate'].forEach(k=>q[k]=parseFloat(q[k])||0);
+  if(q.date) q.date = normalizeDate(q.date);
+  if(q.createdAt) q.createdAt = normalizeDate(q.createdAt);
   return q;
 }
 
@@ -908,6 +916,8 @@ function pPj(p){
     if(!Array.isArray(p[k]))p[k]=[];
   });
   ['budget','spent'].forEach(k=>p[k]=parseFloat(p[k])||0);
+  if(p.start) p.start = normalizeDate(p.start);
+  if(p.end) p.end = normalizeDate(p.end);
   return p;
 }
 
@@ -919,9 +929,9 @@ async function init(){
     quotes=Array.isArray(q)?q.map(pQ):[];
     products=Array.isArray(p)&&p.length?p.map(x=>({...x,price:parseFloat(x.price)||0})):DP;
     projects=Array.isArray(pj)?pj.map(pPj):[];
-    tasks=Array.isArray(tk)?tk.map(t=>({...t,done:t.done==='TRUE'||t.done===true,pinned:t.pinned==='TRUE'||t.pinned===true})):JSON.parse(localStorage.getItem('mslab_tasks')||'[]');
+    tasks=Array.isArray(tk)?tk.map(t=>({...t,done:t.done==='TRUE'||t.done===true,pinned:t.pinned==='TRUE'||t.pinned===true,date:normalizeDate(t.date)})):JSON.parse(localStorage.getItem('mslab_tasks')||'[]');
     marketSessions=Array.isArray(mk)?mk.map(parseMarketRow):JSON.parse(localStorage.getItem('mslab_market')||'[]');
-    ledgerEntries=Array.isArray(ldg)?ldg.map(e=>({...e,amount:parseFloat(e.amount)||0})):[];
+    ledgerEntries=Array.isArray(ldg)?ldg.map(e=>({...e,amount:parseFloat(e.amount)||0,date:normalizeDate(e.date)})):[];
     if(!Array.isArray(p)||!p.length)await apiSave('products',products);
     setSS('ok','已連線 Google Sheets');
   }catch(e){
@@ -992,6 +1002,10 @@ function twDate(d){
 }
 function twMonth(){
   return twDate().slice(0,7);
+}
+function twNow(){
+  const tw = new Date(new Date().getTime() + 8*60*60*1000);
+  return tw.toISOString().replace('Z','+08:00');
 }
 function todayStr(){return twDate();}
 
@@ -1101,7 +1115,7 @@ function saveTask(){
     t.note=document.getElementById('tk-note').value.trim();
     t.pinned=pinned;
   } else {
-    tasks.push({id:'TK-'+Date.now(),text,cat:document.getElementById('tk-cat').value,date:document.getElementById('tk-date').value,note:document.getElementById('tk-note').value.trim(),pinned,done:false,createdAt:new Date().toISOString()});
+    tasks.push({id:'TK-'+Date.now(),text,cat:document.getElementById('tk-cat').value,date:document.getElementById('tk-date').value,note:document.getElementById('tk-note').value.trim(),pinned,done:false,createdAt:twNow()});
   }
   saveTasksLocal();closeModal('task-modal');renderTasks();renderToday();saveTasks();
 }
@@ -1182,17 +1196,17 @@ function setDashFilter(f, el){
 }
 function renderDashboard(){
   const now = new Date();
-  const ym = now.toISOString().slice(0,7); // 'YYYY-MM'
+  const ym = twMonth(); // 'YYYY-MM' 台灣時間
   const yr = now.getFullYear().toString();
 
   let filtered;
   if(dashFilter==='month'){
-    filtered = quotes.filter(q=>(q.createdAt||q.date||'').slice(0,7)===ym);
+    filtered = quotes.filter(q=>twDate(new Date(q.createdAt||q.date||twDate())).slice(0,7)===ym);
     document.getElementById('stat-quotes-lbl').textContent='本月報價單數';
     document.getElementById('stat-revenue-lbl').textContent='本月報價總額';
     document.getElementById('dash-period-label').textContent=now.toLocaleDateString('zh-TW',{year:'numeric',month:'long'});
   } else if(dashFilter==='year'){
-    filtered = quotes.filter(q=>(q.createdAt||q.date||'').slice(0,4)===yr);
+    filtered = quotes.filter(q=>twDate(new Date(q.createdAt||q.date||twDate())).slice(0,4)===yr);
     document.getElementById('stat-quotes-lbl').textContent='今年報價單數';
     document.getElementById('stat-revenue-lbl').textContent='今年報價總額';
     document.getElementById('dash-period-label').textContent=yr+'年';
@@ -1684,7 +1698,7 @@ async function saveProject(){
     const pj=getPj(editingPjId);
     Object.assign(pj,{name,type:document.getElementById('pj-type').value,status:document.getElementById('pj-status').value,start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,budget:parseFloat(document.getElementById('pj-budget').value)||0,spent:parseFloat(document.getElementById('pj-spent').value)||0,desc:document.getElementById('pj-desc').value});
   }else{
-    projects.push({id:'PJ-'+Date.now(),name,type:document.getElementById('pj-type').value,status:document.getElementById('pj-status').value,start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,budget:parseFloat(document.getElementById('pj-budget').value)||0,spent:parseFloat(document.getElementById('pj-spent').value)||0,desc:document.getElementById('pj-desc').value,todos:[],linkedClients:[],linkedQuotes:[],linkedMarkets:[],planItems:[],inbound:[],outbound:[],createdAt:new Date().toISOString()});
+    projects.push({id:'PJ-'+Date.now(),name,type:document.getElementById('pj-type').value,status:document.getElementById('pj-status').value,start:document.getElementById('pj-start').value,end:document.getElementById('pj-end').value,budget:parseFloat(document.getElementById('pj-budget').value)||0,spent:parseFloat(document.getElementById('pj-spent').value)||0,desc:document.getElementById('pj-desc').value,todos:[],linkedClients:[],linkedQuotes:[],linkedMarkets:[],planItems:[],inbound:[],outbound:[],createdAt:twNow()});
   }
   lb();closeModal('project-modal');renderProjects();renderDashboard();await savePjs();
 }
@@ -1735,7 +1749,7 @@ async function saveClient(){
   if(editingClientIdx !== null){
     clients[editingClientIdx]={...clients[editingClientIdx],...data};
   } else {
-    clients.push({...data, createdAt:new Date().toISOString()});
+    clients.push({...data, createdAt:twNow()});
   }
   lb();closeModal('client-modal');renderClients();renderDashboard();await apiSave('clients',clients);
 }
@@ -1848,7 +1862,7 @@ async function saveQuote(status){
   } else {
     const yr=new Date().getFullYear();
     const id='QT-'+yr+'-'+String(quotes.length+1).padStart(4,'0');
-    quotes.push({id,...data,createdAt:new Date().toISOString()});
+    quotes.push({id,...data,createdAt:twNow()});
     lb();closeQuoteForm();renderQuotes();renderDashboard();
     if(status==='sent')setTimeout(()=>previewQuote(quotes.length-1),100);
   }
@@ -2007,7 +2021,7 @@ async function saveQuoteTask(){
     done: false,
     pinned: false,
     note: `來自報價單 ${q?.id||''}`,
-    createdAt: new Date().toISOString()
+    createdAt: twNow()
   };
   tasks.push(task);
   await saveTasks();
@@ -2055,7 +2069,7 @@ function doConvertToReceipt(){
     taxRate: q.taxRate,
     total: q.total,
     payment,
-    createdAt: new Date().toISOString()
+    createdAt: twNow()
   };
   receipts.push(rc);
   localStorage.setItem('mslab_receipts', JSON.stringify(receipts));
@@ -2159,7 +2173,7 @@ let currentMarketSessionId = null;
 function parseMarketRow(row) {
   if (typeof row.items === 'string') try { row.items = JSON.parse(row.items); } catch(e) { row.items = []; }
   if (!Array.isArray(row.items)) row.items = [];
-  if (row.date) row.date = row.date.slice(0,10); // 確保只保留 YYYY-MM-DD
+  if (row.date) row.date = /^\d{4}-\d{2}-\d{2}$/.test(row.date) ? row.date : twDate(new Date(row.date)); // 確保台灣時區日期
   return row;
 }
 
@@ -2383,13 +2397,13 @@ function ledgerGoToday(){ ledgerMonth = twMonth(); renderLedger(); }
 function ledgerPrevMonth(){
   const d = new Date(ledgerMonth+'-01');
   d.setMonth(d.getMonth()-1);
-  ledgerMonth = d.toISOString().slice(0,7);
+  ledgerMonth = twDate(d).slice(0,7);
   renderLedger();
 }
 function ledgerNextMonth(){
   const d = new Date(ledgerMonth+'-01');
   d.setMonth(d.getMonth()+1);
-  ledgerMonth = d.toISOString().slice(0,7);
+  ledgerMonth = twDate(d).slice(0,7);
   renderLedger();
 }
 
@@ -2406,7 +2420,11 @@ function renderLedger(){
   const label = new Date(ledgerMonth+'-02').toLocaleDateString('zh-TW',{year:'numeric',month:'long'});
   document.getElementById('ledger-month-label').textContent = label;
 
-  const monthEntries = ledgerEntries.filter(e => (e.date||'').slice(0,7) === ledgerMonth);
+  const monthEntries = ledgerEntries.filter(e => {
+    const d = e.date || '';
+    const normalized = /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : twDate(new Date(d));
+    return normalized.slice(0,7) === ledgerMonth;
+  });
   const filtered = ledgerFilter==='all' ? monthEntries : monthEntries.filter(e=>e.cat===ledgerFilter);
 
   // Stats
