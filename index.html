@@ -984,7 +984,16 @@ const CAT_META = {
 function saveTasksLocal(){localStorage.setItem('mslab_tasks',JSON.stringify(tasks));}
 async function saveTasks(){saveTasksLocal();await apiSave('tasks',tasks);}
 
-function todayStr(){return new Date().toISOString().slice(0,10);}
+function twDate(d){
+  // 回傳台灣時間的 Date 物件或字串
+  const date = d || new Date();
+  const tw = new Date(date.getTime() + 8*60*60*1000);
+  return tw.toISOString().slice(0,10);
+}
+function twMonth(){
+  return twDate().slice(0,7);
+}
+function todayStr(){return twDate();}
 
 // Collect today's items: standalone tasks + project todos due today
 function getTodayItems(){
@@ -2176,7 +2185,7 @@ function openMarketSessionModal() {
   document.getElementById('market-session-modal-title').textContent = '新增擺攤場次';
   document.getElementById('ms-name').dataset.editId = '';
   ['ms-name','ms-location','ms-note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('ms-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ms-date').value = twDate();
   document.getElementById('market-session-modal').classList.add('open');
 }
 
@@ -2360,7 +2369,7 @@ function initMarket() {
 
 // ── Ledger ────────────────────────────────────────────────
 let ledgerEntries = [];
-let ledgerMonth = new Date().toISOString().slice(0,7); // 'YYYY-MM'
+let ledgerMonth = twMonth(); // 'YYYY-MM'
 let ledgerFilter = 'all';
 
 function getCnyRate(){ return parseFloat(document.getElementById('cny-rate')?.value)||4.5; }
@@ -2370,7 +2379,7 @@ function toTWD(amount, currency){
   return currency==='CNY' ? Math.round(amount * getCnyRate()) : Math.round(amount);
 }
 
-function ledgerGoToday(){ ledgerMonth = new Date().toISOString().slice(0,7); renderLedger(); }
+function ledgerGoToday(){ ledgerMonth = twMonth(); renderLedger(); }
 function ledgerPrevMonth(){
   const d = new Date(ledgerMonth+'-01');
   d.setMonth(d.getMonth()-1);
@@ -2453,7 +2462,7 @@ function updateLdgCurrencyHint(){
 function openLedgerModal(){
   document.getElementById('ledger-modal-title').textContent='新增記帳';
   document.getElementById('ldg-edit-id').value='';
-  document.getElementById('ldg-date').value=ledgerMonth+'-'+new Date().toISOString().slice(8,10);
+  document.getElementById('ldg-date').value=twDate();
   document.getElementById('ldg-cat').value='花材耗材';
   document.getElementById('ldg-desc').value='';
   document.getElementById('ldg-currency').value='TWD';
