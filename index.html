@@ -2553,5 +2553,113 @@ async function initApp(){
 
 initApp();
 </script>
+
+<!-- Calculator -->
+<style>
+.calc-fab{position:fixed;bottom:85px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(139,111,94,.45);z-index:600;display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.calc-fab:hover{transform:scale(1.08)}
+.calc-panel{position:fixed;bottom:145px;right:16px;width:240px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,.15);z-index:600;overflow:hidden;display:none}
+.calc-panel.open{display:block;animation:modalIn .2s ease}
+.calc-display{background:var(--bg2);padding:12px 14px;text-align:right}
+.calc-expr{font-size:11px;color:var(--text3);min-height:16px;word-break:break-all}
+.calc-result{font-size:26px;font-weight:300;font-family:'Noto Serif TC',serif;color:var(--text);word-break:break-all}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.calc-btn{background:var(--surface);border:none;padding:14px 8px;font-size:15px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--text);transition:background .1s;-webkit-tap-highlight-color:transparent}
+.calc-btn:hover,.calc-btn:active{background:var(--bg2)}
+.calc-btn.op{color:var(--accent);font-weight:500}
+.calc-btn.eq{background:var(--accent);color:#fff;font-size:18px}
+.calc-btn.eq:hover{background:#7a6050}
+.calc-btn.wide{grid-column:span 2}
+.calc-btn.del{color:var(--rose)}
+.calc-copy{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+.calc-copy button{font-size:11px;padding:4px 10px}
+</style>
+
+<button class="calc-fab no-print" onclick="toggleCalc()" title="計算機">🧮</button>
+
+<div class="calc-panel no-print" id="calc-panel">
+  <div class="calc-display">
+    <div class="calc-expr" id="calc-expr"></div>
+    <div class="calc-result" id="calc-result">0</div>
+  </div>
+  <div class="calc-grid">
+    <button class="calc-btn op" onclick="calcAC()">AC</button>
+    <button class="calc-btn del" onclick="calcDel()">⌫</button>
+    <button class="calc-btn op" onclick="calcOp('%')">%</button>
+    <button class="calc-btn op" onclick="calcOp('÷')">÷</button>
+    <button class="calc-btn" onclick="calcNum('7')">7</button>
+    <button class="calc-btn" onclick="calcNum('8')">8</button>
+    <button class="calc-btn" onclick="calcNum('9')">9</button>
+    <button class="calc-btn op" onclick="calcOp('×')">×</button>
+    <button class="calc-btn" onclick="calcNum('4')">4</button>
+    <button class="calc-btn" onclick="calcNum('5')">5</button>
+    <button class="calc-btn" onclick="calcNum('6')">6</button>
+    <button class="calc-btn op" onclick="calcOp('−')">−</button>
+    <button class="calc-btn" onclick="calcNum('1')">1</button>
+    <button class="calc-btn" onclick="calcNum('2')">2</button>
+    <button class="calc-btn" onclick="calcNum('3')">3</button>
+    <button class="calc-btn op" onclick="calcOp('+')">+</button>
+    <button class="calc-btn wide" onclick="calcNum('0')">0</button>
+    <button class="calc-btn" onclick="calcDot()">.</button>
+    <button class="calc-btn eq" onclick="calcEq()">=</button>
+  </div>
+  <div class="calc-copy">
+    <span id="calc-copy-val">結果：0</span>
+    <button class="btn btn-sm" onclick="calcCopy()">複製</button>
+  </div>
+</div>
+
+<script>
+let cExpr='', cCurrent='0', cNewNum=true;
+function toggleCalc(){document.getElementById('calc-panel').classList.toggle('open');}
+function calcUpdate(){
+  document.getElementById('calc-result').textContent=cCurrent;
+  document.getElementById('calc-expr').textContent=cExpr;
+  document.getElementById('calc-copy-val').textContent='結果：'+cCurrent;
+}
+function calcNum(n){
+  if(cNewNum){cCurrent=n;cNewNum=false;}
+  else cCurrent=cCurrent==='0'?n:cCurrent+n;
+  calcUpdate();
+}
+function calcDot(){
+  if(cNewNum){cCurrent='0.';cNewNum=false;}
+  else if(!cCurrent.includes('.'))cCurrent+='.';
+  calcUpdate();
+}
+function calcOp(op){cExpr=cCurrent+' '+op;cNewNum=true;calcUpdate();}
+function calcEq(){
+  if(!cExpr)return;
+  const parts=cExpr.trim().split(' ');
+  const a=parseFloat(parts[0]),op=parts[1],b=parseFloat(cCurrent);
+  let res=0;
+  if(op==='+')res=a+b;
+  else if(op==='−')res=a-b;
+  else if(op==='×')res=a*b;
+  else if(op==='÷')res=b?a/b:0;
+  else if(op==='%')res=a*b/100;
+  cCurrent=parseFloat(res.toFixed(6)).toString();
+  cExpr='';cNewNum=true;
+  calcUpdate();
+}
+function calcAC(){cCurrent='0';cExpr='';cNewNum=true;calcUpdate();}
+function calcDel(){
+  if(cNewNum||cCurrent.length<=1){cCurrent='0';cNewNum=true;}
+  else cCurrent=cCurrent.slice(0,-1);
+  calcUpdate();
+}
+function calcCopy(){
+  navigator.clipboard?.writeText(cCurrent).catch(()=>{});
+  const btn=document.querySelector('.calc-copy button');
+  btn.textContent='已複製！';setTimeout(()=>btn.textContent='複製',1500);
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('calc-panel');
+  const fab=document.querySelector('.calc-fab');
+  if(panel&&fab&&!panel.contains(e.target)&&!fab.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+</script>
 </body>
 </html>
